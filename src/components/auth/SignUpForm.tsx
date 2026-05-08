@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import React, { useState } from "react";
 import { Mail, Lock, UserPlus } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
@@ -48,7 +48,7 @@ export default function SignUpForm({ serverError }: Props) {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     if (!validate()) {
       e.preventDefault();
     }
@@ -91,7 +91,14 @@ export default function SignUpForm({ serverError }: Props) {
         error={errors.password}
         hint={passwordHint}
         icon={<Lock className="size-4" />}
-        endContent={<PasswordToggle visible={showPassword} onToggle={() => setShowPassword(!showPassword)} />}
+        endContent={
+          <PasswordToggle
+            visible={showPassword}
+            onToggle={() => {
+              setShowPassword(!showPassword);
+            }}
+          />
+        }
       />
 
       <FormField
@@ -108,7 +115,12 @@ export default function SignUpForm({ serverError }: Props) {
         error={errors.confirmPassword}
         icon={<Lock className="size-4" />}
         endContent={
-          <PasswordToggle visible={showConfirmPassword} onToggle={() => setShowConfirmPassword(!showConfirmPassword)} />
+          <PasswordToggle
+            visible={showConfirmPassword}
+            onToggle={() => {
+              setShowConfirmPassword(!showConfirmPassword);
+            }}
+          />
         }
       />
 

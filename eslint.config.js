@@ -1,36 +1,39 @@
-import { includeIgnoreFile } from "@eslint/compat";
+/* eslint-disable @typescript-eslint/no-deprecated -- tseslint.config() is the only way to use extends; core defineConfig has incompatible API */
+import { includeIgnoreFile } from "@eslint/config-helpers";
 import eslint from "@eslint/js";
 import eslintPluginPrettier from "eslint-plugin-prettier/recommended";
 import eslintPluginAstro from "eslint-plugin-astro";
-import jsxA11y from "eslint-plugin-jsx-a11y";
 import pluginReact from "eslint-plugin-react";
 import reactCompiler from "eslint-plugin-react-compiler";
 import eslintPluginReactHooks from "eslint-plugin-react-hooks";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import tseslint from "typescript-eslint";
 
-// File path setup
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const gitignorePath = path.resolve(__dirname, ".gitignore");
+const gitignorePath = path.resolve(import.meta.dirname, ".gitignore");
 
 const baseConfig = tseslint.config({
-  extends: [eslint.configs.recommended, tseslint.configs.strict, tseslint.configs.stylistic],
+  extends: [eslint.configs.recommended, tseslint.configs.strictTypeChecked, tseslint.configs.stylisticTypeChecked],
+  languageOptions: {
+    parserOptions: {
+      projectService: true,
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
   rules: {
     "no-console": "warn",
     "no-unused-vars": "off",
-  },
-});
-
-const jsxA11yConfig = tseslint.config({
-  files: ["**/*.{js,jsx,ts,tsx}"],
-  extends: [jsxA11y.flatConfigs.recommended],
-  languageOptions: {
-    ...jsxA11y.flatConfigs.recommended.languageOptions,
-  },
-  rules: {
-    ...jsxA11y.flatConfigs.recommended.rules,
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
+        destructuredArrayIgnorePattern: "^_",
+        ignoreRestSiblings: true,
+      },
+    ],
+    "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
+    "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: { attributes: false } }],
   },
 });
 
@@ -56,11 +59,21 @@ const reactConfig = tseslint.config({
   },
 });
 
+const astroConfig = tseslint.config({
+  files: ["**/*.astro"],
+  rules: {
+    "astro/no-set-html-directive": "error",
+    "astro/no-unused-css-selector": "warn",
+    "astro/prefer-class-list-directive": "warn",
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
-  jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
-  eslintPluginPrettier
+  ...eslintPluginAstro.configs["flat/jsx-a11y-recommended"],
+  astroConfig,
+  eslintPluginPrettier,
 );

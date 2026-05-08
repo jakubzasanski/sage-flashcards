@@ -18,9 +18,11 @@ Pre-commit hooks: husky + lint-staged runs `eslint --fix` on `*.{ts,tsx,astro}` 
 **Astro 5 SSR app** with React 19 islands, Tailwind 4, Supabase auth, and shadcn/ui components.
 
 ### Rendering mode
+
 Full server-side rendering (`output: "server"` in astro.config.mjs). All pages are server-rendered by default. API routes must export `const prerender = false`.
 
 ### Auth flow
+
 - `src/lib/supabase.ts` — creates a Supabase SSR client using `@supabase/ssr` with cookie-based sessions. Uses `astro:env/server` for `SUPABASE_URL` and `SUPABASE_KEY` (server-only secrets declared in astro.config.mjs `env.schema`).
 - `src/middleware.ts` — runs on every request, resolves the current user, attaches to `context.locals.user`. Redirects unauthenticated users away from routes listed in `PROTECTED_ROUTES`.
 - API endpoints: `src/pages/api/auth/{signin,signup,signout}.ts`
@@ -28,6 +30,7 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 - Protected page example: `src/pages/dashboard.astro`
 
 ### Key conventions
+
 - **Path alias**: `@/*` maps to `./src/*` (tsconfig paths).
 - **Astro components** for static content/layout; **React components** only when interactivity is needed.
 - **Tailwind class merging**: use the `cn()` helper from `@/lib/utils` (clsx + tailwind-merge) for conditional/merged class names. Do not concatenate class strings manually.
@@ -39,6 +42,7 @@ Full server-side rendering (`output: "server"` in astro.config.mjs). All pages a
 - **Shared types** (entities, DTOs) go in `src/types.ts`.
 
 ### Environment
+
 - Node.js v22.14.0 (see `.nvmrc`)
 - Env vars: `SUPABASE_URL`, `SUPABASE_KEY` (copy `.env.example` to `.env`)
 - Local Supabase: `npx supabase start` (requires Docker)

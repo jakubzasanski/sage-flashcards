@@ -59,12 +59,12 @@ npm run build
 ```md
 .
 ├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
+│ ├── layouts/ # Astro layouts
+│ ├── pages/ # Astro pages
+│ │ └── api/ # API endpoints
+│ ├── components/ # UI components (Astro & React)
+│ └── assets/ # Static assets
+├── public/ # Public assets
 ```
 
 ## Supabase Configuration
@@ -114,9 +114,9 @@ No database tables or migrations are required — this project uses Supabase Aut
 
 If you prefer to use a hosted Supabase project, add these variables to your `.env` file:
 
-| Variable | Description |
-|---|---|
-| `SUPABASE_URL` | Project URL from Supabase dashboard → Settings → API |
+| Variable       | Description                                                |
+| -------------- | ---------------------------------------------------------- |
+| `SUPABASE_URL` | Project URL from Supabase dashboard → Settings → API       |
 | `SUPABASE_KEY` | `anon` public key from Supabase dashboard → Settings → API |
 
 ```
@@ -136,12 +136,12 @@ Users can then sign in immediately after sign-up without clicking a confirmation
 
 ### Auth routes
 
-| Route | Description |
-|---|---|
-| `/auth/signin` | Email/password sign-in form |
-| `/auth/signup` | Email/password sign-up form |
-| `/auth/confirm-email` | Post-signup "check your inbox" page |
-| `/dashboard` | Example protected page (redirects to `/auth/signin` if unauthenticated) |
+| Route                 | Description                                                             |
+| --------------------- | ----------------------------------------------------------------------- |
+| `/auth/signin`        | Email/password sign-in form                                             |
+| `/auth/signup`        | Email/password sign-up form                                             |
+| `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
+| `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
 
 Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
 

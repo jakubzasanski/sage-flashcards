@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import React, { useState } from "react";
 import { Mail, Lock, LogIn } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
@@ -33,7 +33,7 @@ export default function SignInForm({ serverError }: Props) {
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     if (!validate()) {
       e.preventDefault();
     }
@@ -67,7 +67,14 @@ export default function SignInForm({ serverError }: Props) {
         placeholder="Your password"
         error={errors.password}
         icon={<Lock className="size-4" />}
-        endContent={<PasswordToggle visible={showPassword} onToggle={() => setShowPassword(!showPassword)} />}
+        endContent={
+          <PasswordToggle
+            visible={showPassword}
+            onToggle={() => {
+              setShowPassword(!showPassword);
+            }}
+          />
+        }
       />
 
       <ServerError message={serverError} />
