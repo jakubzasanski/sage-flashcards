@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# local workspace
+context/
+
 # cloudflare
 .dev.vars
 .wrangler/
