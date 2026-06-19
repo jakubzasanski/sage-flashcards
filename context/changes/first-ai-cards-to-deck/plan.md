@@ -264,14 +264,14 @@ No schema changes — reuses F-01's `flashcards`. New runtime config: `OPENROUTE
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint`
+- [x] 2.2 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.3 Authenticated `POST /api/cards` with 2 cards → 201 {saved:2}; rows present with source='ai', user_id=A
-- [ ] 2.4 Same rows NOT visible to user B (RLS isolation)
-- [ ] 2.5 Unauthenticated → 401; empty/oversized/invalid array → 400
+- [x] 2.3 Authenticated `POST /api/cards` with 2 cards → 201 {saved:2}; rows present with source='ai', user_id=A
+- [x] 2.4 Same rows NOT visible to user B (RLS isolation)
+- [x] 2.5 Unauthenticated → 401; empty/oversized/invalid array → 400
 
 ### Phase 3: /generate page + review island
 
