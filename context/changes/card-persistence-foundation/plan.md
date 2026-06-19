@@ -202,22 +202,22 @@ The `(user_id, created_at desc)` index directly serves the owner-scoped, recency
 
 #### Automated
 
-- [x] 1.1 Local Supabase is running: `npx supabase start`
-- [x] 1.2 Migration applies cleanly from scratch: `npx supabase db reset`
-- [x] 1.3 RLS enabled + 4 policies present (catalog assertion via pg_class/pg_policies)
-- [x] 1.4 Schema/typing lint passes (generic gate): `npx supabase db lint --schema public`
+- [x] 1.1 Local Supabase is running: `npx supabase start` — 2fbc652
+- [x] 1.2 Migration applies cleanly from scratch: `npx supabase db reset` — 2fbc652
+- [x] 1.3 RLS enabled + 4 policies present (catalog assertion via pg_class/pg_policies) — 2fbc652
+- [x] 1.4 Schema/typing lint passes (generic gate): `npx supabase db lint --schema public` — 2fbc652
 
 #### Manual
 
-- [x] 1.5 As authenticated user A, an inserted card is readable by A
-- [x] 1.6 The same card is NOT readable or mutable by a second authenticated user B
-- [x] 1.7 Updating a card bumps `updated_at`; `created_at` is unchanged
+- [x] 1.5 As authenticated user A, an inserted card is readable by A — 2fbc652
+- [x] 1.6 The same card is NOT readable or mutable by a second authenticated user B — 2fbc652
+- [x] 1.7 Updating a card bumps `updated_at`; `created_at` is unchanged — 2fbc652
 
 ### Phase 2: Typed entity surface
 
 #### Automated
 
-- [ ] 2.1 Type generation produces a non-empty file containing `flashcards`
+- [x] 2.1 Type generation produces a non-empty file containing `flashcards`
 - [ ] 2.2 Astro types regenerate: `npx astro sync`
 - [ ] 2.3 Lint passes (type-checked): `npm run lint`
 - [ ] 2.4 Build passes: `npm run build`
