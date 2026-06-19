@@ -1,7 +1,7 @@
 ---
 change_id: card-persistence-foundation
 title: Card persistence foundation — flashcards table with RLS and origin tracking
-status: implementing
+status: implemented
 created: 2026-06-19
 updated: 2026-06-19
 archived_at: null

@@ -217,12 +217,12 @@ The `(user_id, created_at desc)` index directly serves the owner-scoped, recency
 
 #### Automated
 
-- [x] 2.1 Type generation produces a non-empty file containing `flashcards`
-- [x] 2.2 Astro types regenerate: `npx astro sync`
-- [x] 2.3 Lint passes (type-checked): `npm run lint`
-- [x] 2.4 Build passes: `npm run build`
+- [x] 2.1 Type generation produces a non-empty file containing `flashcards` — 25b6e69
+- [x] 2.2 Astro types regenerate: `npx astro sync` — 25b6e69
+- [x] 2.3 Lint passes (type-checked): `npm run lint` — 25b6e69
+- [x] 2.4 Build passes: `npm run build` — 25b6e69
 
 #### Manual
 
-- [x] 2.5 Generated `src/db/database.types.ts` includes `flashcards` Row/Insert/Update with expected columns
-- [x] 2.6 `import type { Flashcard, CreateFlashcardCommand } from "@/types"` resolves with correct field types
+- [x] 2.5 Generated `src/db/database.types.ts` includes `flashcards` Row/Insert/Update with expected columns — 25b6e69
+- [x] 2.6 `import type { Flashcard, CreateFlashcardCommand } from "@/types"` resolves with correct field types — 25b6e69
