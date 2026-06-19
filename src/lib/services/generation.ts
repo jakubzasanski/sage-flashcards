@@ -1,12 +1,13 @@
-import { OPENROUTER_API_KEY, OPENROUTER_MODEL } from "astro:env/server";
+import { LLM_API_KEY, LLM_BASE_URL, LLM_MODEL } from "astro:env/server";
 import { z } from "zod";
 import type { CandidateCard } from "@/types";
 
-// Roadmap S-01: turn pasted source text into atomic AI-distilled candidate cards via OpenRouter.
-// The provider is reached with the global `fetch` (no Node SDK) so it runs on workerd.
+// Roadmap S-01: turn pasted source text into atomic AI-distilled candidate cards.
+// Calls any OpenAI-compatible chat-completions endpoint (OpenAI by default; OpenRouter or a local
+// proxy via LLM_BASE_URL) with the global `fetch` (no Node SDK) so it runs on workerd.
 // PRIVACY GUARDRAIL: `sourceText` must never be logged or echoed in errors.
 
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const CHAT_COMPLETIONS_PATH = "/chat/completions";
 
 // Caps. The route also validates the input length, but the service is the last line of defence
 // (it owns the prompt) so it enforces both independently.
@@ -82,12 +83,12 @@ function extractJson(content: string): unknown {
   return undefined;
 }
 
-// One OpenRouter round-trip. Throws GenerationError("upstream") on network/non-2xx,
+// One provider round-trip. Throws GenerationError("upstream") on network/non-2xx,
 // GenerationError("parse") on missing/unparseable content. Never references sourceText in errors.
-async function callOpenRouter(apiKey: string, model: string, sourceText: string): Promise<CandidateCard[]> {
+async function callProvider(apiKey: string, model: string, sourceText: string): Promise<CandidateCard[]> {
   let response: Response;
   try {
-    response = await fetch(OPENROUTER_URL, {
+    response = await fetch(`${LLM_BASE_URL}${CHAT_COMPLETIONS_PATH}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -145,7 +146,7 @@ async function callOpenRouter(apiKey: string, model: string, sourceText: string)
 // Public entry point. Reads provider config from astro:env/server, enforces the input cap,
 // and rides out one transient failure (network/5xx/parse) before surfacing a clean error.
 export async function generateCandidates(sourceText: string): Promise<CandidateCard[]> {
-  if (!OPENROUTER_API_KEY) {
+  if (!LLM_API_KEY) {
     throw new GenerationError("Generation is not configured", "config", false);
   }
 
@@ -156,13 +157,13 @@ export async function generateCandidates(sourceText: string): Promise<CandidateC
   const capped = trimmed.slice(0, MAX_SOURCE_CHARS);
 
   try {
-    return await callOpenRouter(OPENROUTER_API_KEY, OPENROUTER_MODEL, capped);
+    return await callProvider(LLM_API_KEY, LLM_MODEL, capped);
   } catch (err) {
     // Retry once, but only for transient faults (network/429/5xx/malformed output).
     // Deterministic failures (config, 4xx) re-throw immediately — a second call can't help.
     if (err instanceof GenerationError && !err.retryable) {
       throw err;
     }
-    return await callOpenRouter(OPENROUTER_API_KEY, OPENROUTER_MODEL, capped);
+    return await callProvider(LLM_API_KEY, LLM_MODEL, capped);
   }
 }

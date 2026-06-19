@@ -18,12 +18,20 @@ export default defineConfig({
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
-      OPENROUTER_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
-      OPENROUTER_MODEL: envField.string({
+      // LLM provider is any OpenAI-compatible chat-completions endpoint (OpenAI direct by default,
+      // OpenRouter or a local proxy by overriding LLM_BASE_URL). Model is swappable, no redeploy.
+      LLM_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      LLM_BASE_URL: envField.string({
         context: "server",
         access: "secret",
         optional: true,
-        default: "openai/gpt-4o-mini",
+        default: "https://api.openai.com/v1",
+      }),
+      LLM_MODEL: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+        default: "gpt-5-mini",
       }),
     },
   },

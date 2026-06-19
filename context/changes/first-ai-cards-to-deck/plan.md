@@ -241,6 +241,15 @@ No schema changes — reuses F-01's `flashcards`. New runtime config: `OPENROUTE
 - Lesson: `context/foundation/lessons.md` (RLS GRANT — relied on via F-01)
 - Patterns: `src/pages/api/auth/signin.ts` (API route), `src/components/auth/SignInForm.tsx` (island), `src/pages/auth/signin.astro` (mount)
 
+## Addendum (2026-06-19): LLM provider — OpenAI instead of OpenRouter
+
+The plan's original decision (Open Q#2) was OpenRouter via `fetch`. During Phase 1/3 verification the OpenRouter account had no credit (402), and the developer has a working OpenAI API key, so the provider was switched to **OpenAI directly** while keeping the implementation provider-agnostic:
+
+- The service calls any **OpenAI-compatible chat-completions endpoint** via `fetch` (still workerd-safe, no Node SDK). OpenRouter is OpenAI-compatible, so this is a superset of the original decision — point `LLM_BASE_URL` back at OpenRouter to switch with zero code change.
+- Env vars renamed/generalized: `OPENROUTER_API_KEY`/`OPENROUTER_MODEL` → **`LLM_API_KEY`**, **`LLM_BASE_URL`** (default `https://api.openai.com/v1`), **`LLM_MODEL`** (default `gpt-5-mini`). Read from `astro:env/server` in `src/lib/services/generation.ts`.
+- Model in use: **`gpt-5-mini`** (supports `response_format: json_object`; verified returning valid candidate JSON).
+- Migration Notes above supersede: the production Workers Secret is now `LLM_API_KEY` (and optional `LLM_BASE_URL`/`LLM_MODEL` overrides), not `OPENROUTER_*`.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
@@ -264,27 +273,27 @@ No schema changes — reuses F-01's `flashcards`. New runtime config: `OPENROUTE
 
 #### Automated
 
-- [x] 2.1 Lint passes: `npm run lint`
-- [x] 2.2 Build passes: `npm run build`
+- [x] 2.1 Lint passes: `npm run lint` — c5f9f44
+- [x] 2.2 Build passes: `npm run build` — c5f9f44
 
 #### Manual
 
-- [x] 2.3 Authenticated `POST /api/cards` with 2 cards → 201 {saved:2}; rows present with source='ai', user_id=A
-- [x] 2.4 Same rows NOT visible to user B (RLS isolation)
-- [x] 2.5 Unauthenticated → 401; empty/oversized/invalid array → 400
+- [x] 2.3 Authenticated `POST /api/cards` with 2 cards → 201 {saved:2}; rows present with source='ai', user_id=A — c5f9f44
+- [x] 2.4 Same rows NOT visible to user B (RLS isolation) — c5f9f44
+- [x] 2.5 Unauthenticated → 401; empty/oversized/invalid array → 400 — c5f9f44
 
 ### Phase 3: /generate page + review island
 
 #### Automated
 
-- [ ] 3.1 Lint passes: `npm run lint`
-- [ ] 3.2 Build passes: `npm run build`
-- [ ] 3.3 `npx astro check` passes
+- [x] 3.1 Lint passes: `npm run lint`
+- [x] 3.2 Build passes: `npm run build`
+- [x] 3.3 `npx astro check` passes
 
 #### Manual
 
-- [ ] 3.4 Signed in: paste → generate → candidates render; edit one, reject one, accept rest
-- [ ] 3.5 Refresh mid-review restores candidates + decisions from localStorage
-- [ ] 3.6 Save → "N cards saved", session cleared; saved cards exist in DB for the user
-- [ ] 3.7 Unauthenticated `/generate` → redirected to `/auth/signin`
-- [ ] 3.8 Over-cap input blocked client-side with limit shown; generation error shows clean inline message
+- [x] 3.4 Signed in: paste → generate → candidates render; edit one, reject one, accept rest
+- [x] 3.5 Refresh mid-review restores candidates + decisions from localStorage
+- [x] 3.6 Save → "N cards saved", session cleared; saved cards exist in DB for the user
+- [x] 3.7 Unauthenticated `/generate` → redirected to `/auth/signin`
+- [x] 3.8 Over-cap input blocked client-side with limit shown; generation error shows clean inline message

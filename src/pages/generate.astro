@@ -1,0 +1,25 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import GeneratorView from "@/components/generation/GeneratorView";
+
+// Protected by middleware (PROTECTED_ROUTES); unauthenticated users are redirected to /auth/signin.
+const { user } = Astro.locals;
+---
+
+<Layout title="Generate flashcards">
+  <main class="bg-cosmic min-h-screen px-4 py-10 text-white">
+    <div class="mx-auto w-full max-w-3xl">
+      <header class="mb-8 text-center">
+        <h1 class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
+          Generate flashcards
+        </h1>
+        <p class="text-sm text-blue-100/60">
+          Paste your source text and review AI-distilled cards before saving them to your deck.
+        </p>
+        <p class="mt-1 text-xs text-blue-100/40">Signed in as {user?.email}</p>
+      </header>
+
+      <GeneratorView client:load />
+    </div>
+  </main>
+</Layout>
