@@ -12,6 +12,10 @@ const requestSchema = z.object({
   sourceText: z.string().trim().min(1).max(MAX_SOURCE_CHARS),
 });
 
+// Reject oversized bodies before buffering/parsing. sourceText caps at 10k chars, so 64KB is
+// generous headroom for JSON escaping while bounding what an authed client can make us buffer.
+const MAX_BODY_BYTES = 64 * 1024;
+
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -22,6 +26,11 @@ function json(body: unknown, status: number): Response {
 export const POST: APIRoute = async (context) => {
   if (!context.locals.user) {
     return json({ error: "Unauthorized" }, 401);
+  }
+
+  const contentLength = Number(context.request.headers.get("content-length"));
+  if (contentLength > MAX_BODY_BYTES) {
+    return json({ error: "Request body too large" }, 413);
   }
 
   let body: unknown;

@@ -50,12 +50,18 @@ export default function GeneratorView() {
   }, []);
 
   // Persist the review session whenever the cards change, so a refresh restores edits + decisions.
+  // Best-effort: swallow storage errors (quota exceeded, Safari private mode) — the in-memory
+  // session keeps working even if persistence fails.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (cards.length > 0) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
-    } else {
-      window.localStorage.removeItem(STORAGE_KEY);
+    try {
+      if (cards.length > 0) {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+      } else {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch {
+      // persistence is non-critical; ignore
     }
   }, [cards]);
 

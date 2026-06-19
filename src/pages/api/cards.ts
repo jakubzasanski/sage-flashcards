@@ -17,6 +17,10 @@ const cardSchema = z.object({
 // The request body is the array of accepted cards itself, capped at the generation batch size.
 const requestSchema = z.array(cardSchema).min(1).max(MAX_CANDIDATES);
 
+// Reject oversized bodies before buffering/parsing. Up to 30 cards of edited Q/A — 128KB is
+// generous headroom while bounding what an authed client can make us buffer.
+const MAX_BODY_BYTES = 128 * 1024;
+
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -28,6 +32,11 @@ export const POST: APIRoute = async (context) => {
   const user = context.locals.user;
   if (!user) {
     return json({ error: "Unauthorized" }, 401);
+  }
+
+  const contentLength = Number(context.request.headers.get("content-length"));
+  if (contentLength > MAX_BODY_BYTES) {
+    return json({ error: "Request body too large" }, 413);
   }
 
   let body: unknown;
