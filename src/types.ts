@@ -16,3 +16,20 @@ export type CardSource = "ai" | "manual";
 // Origin is set at creation and immutable thereafter, so it is absent from the update command.
 export type CreateFlashcardCommand = Pick<FlashcardInsert, "question" | "answer" | "source">;
 export type UpdateFlashcardCommand = Pick<FlashcardUpdate, "question" | "answer">;
+
+// AI generation flow (roadmap S-01).
+// A single AI-distilled candidate card, before the user accepts it into the deck.
+export interface CandidateCard {
+  question: string;
+  answer: string;
+}
+
+// Request/response contract for POST /api/generate. Source text is request-only and
+// never persisted or logged server-side (privacy guardrail).
+export interface GenerateRequest {
+  sourceText: string;
+}
+
+export interface GenerateResponse {
+  candidates: CandidateCard[];
+}
