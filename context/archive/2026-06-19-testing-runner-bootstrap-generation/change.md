@@ -1,10 +1,10 @@
 ---
 change_id: testing-runner-bootstrap-generation
 title: Runner bootstrap + generation-service coverage (test rollout Phase 1)
-status: impl_reviewed
+status: archived
 created: 2026-06-19
 updated: 2026-06-20
-archived_at: null
+archived_at: 2026-06-20T05:53:19Z
 ---
 
 ## Notes
