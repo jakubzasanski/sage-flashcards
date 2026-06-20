@@ -192,32 +192,41 @@ describe("generateCandidates — caps (risk #3)", () => {
 });
 
 describe("generateCandidates — malformed provider output (risk #3)", () => {
-  it("throws a parse error when the response body is not JSON", async () => {
-    stubFetch(() => new Response("<<<not json>>>", { status: 200 }));
+  // Malformed output is a transient parse fault: the one-shot retry MUST fire (fetch twice), since
+  // a non-deterministic model can return good output on a second attempt. Asserting the call-count
+  // pins `retryable: true` on every parse branch, not just the kind.
+  it("throws a retryable parse error when the response body is not JSON (retry fires)", async () => {
+    const fetchMock = stubFetch(() => new Response("<<<not json>>>", { status: 200 }));
 
     const err = await captureError(generateCandidates(SOURCE));
 
     expect(err).toBeInstanceOf(GenerationError);
     expect((err as GenerationError).kind).toBe("parse");
+    expect((err as GenerationError).retryable).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it("throws a parse error when the completion carries no message content", async () => {
-    stubFetch(() => new Response(JSON.stringify({ choices: [{ message: {} }] }), { status: 200 }));
+  it("throws a retryable parse error when the completion carries no message content (retry fires)", async () => {
+    const fetchMock = stubFetch(() => new Response(JSON.stringify({ choices: [{ message: {} }] }), { status: 200 }));
 
     const err = await captureError(generateCandidates(SOURCE));
 
     expect(err).toBeInstanceOf(GenerationError);
     expect((err as GenerationError).kind).toBe("parse");
+    expect((err as GenerationError).retryable).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it("throws a parse error when the extracted JSON does not match the card schema", async () => {
+  it("throws a retryable parse error when the extracted JSON does not match the card schema (retry fires)", async () => {
     // `question` present but `answer` missing → fails modelOutputSchema.
-    stubFetch(() => chatResponse(JSON.stringify({ cards: [{ question: "Q" }] })));
+    const fetchMock = stubFetch(() => chatResponse(JSON.stringify({ cards: [{ question: "Q" }] })));
 
     const err = await captureError(generateCandidates(SOURCE));
 
     expect(err).toBeInstanceOf(GenerationError);
     expect((err as GenerationError).kind).toBe("parse");
+    expect((err as GenerationError).retryable).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
 

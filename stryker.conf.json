@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": "One-off selective mutation gate for the generation service (test rollout Phase 1). Run ad hoc: `npx stryker run`. Not a CI gate. Scope is intentionally narrowed to the single module the Phase 2/3 suites cover.",
+  "packageManager": "npm",
+  "testRunner": "vitest",
+  "mutate": ["src/lib/services/generation.ts"],
+  "reporters": ["html", "clear-text", "progress"],
+  "coverageAnalysis": "perTest"
+}

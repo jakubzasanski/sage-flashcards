@@ -1,6 +1,10 @@
 # build output
 dist/
 
+# mutation testing (Stryker) — report + temp dir are ad-hoc artifacts, not committed
+reports/
+.stryker-tmp/
+
 # generated types
 .astro/
 

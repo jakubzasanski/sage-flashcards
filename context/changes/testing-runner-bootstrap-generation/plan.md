@@ -383,26 +383,26 @@ None — additive. New dev dependency (`vitest`, optionally `@stryker-mutator/*`
 
 #### Automated
 
-- [x] 3.1 Privacy suite passes: `npm test`
-- [x] 3.2 Lint clean: `npm run lint`
+- [x] 3.1 Privacy suite passes: `npm test` — 36aa43d
+- [x] 3.2 Lint clean: `npm run lint` — 36aa43d
 
 #### Manual
 
-- [x] 3.3 Interpolating `sourceText` into a throw turns the suite red (canary works)
-- [x] 3.4 Sentinel-in-success case is sensitive in both directions
+- [x] 3.3 Interpolating `sourceText` into a throw turns the suite red (canary works) — 36aa43d
+- [x] 3.4 Sentinel-in-success case is sensitive in both directions — 36aa43d
 
 ### Phase 4: Mutation-Testing Selective Gate (Optional)
 
 #### Automated
 
-- [ ] 4.1 Stryker run completes and produces an HTML report
-- [ ] 4.2 Suite still green after any added assertions: `npm test`
-- [ ] 4.3 Lint clean: `npm run lint`
+- [x] 4.1 Stryker run completes and produces an HTML report
+- [x] 4.2 Suite still green after any added assertions: `npm test`
+- [x] 4.3 Lint clean: `npm run lint`
 
 #### Manual
 
-- [ ] 4.4 Each survived mutant triaged with a recorded business-impact call
-- [ ] 4.5 Added assertions tie to a real regression, not a cosmetic mutant
+- [x] 4.4 Each survived mutant triaged with a recorded business-impact call
+- [x] 4.5 Added assertions tie to a real regression, not a cosmetic mutant
 
 ### Phase 5: Cookbook Update + Status Sync
 
