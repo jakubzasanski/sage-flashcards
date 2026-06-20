@@ -395,23 +395,23 @@ None — additive. New dev dependency (`vitest`, optionally `@stryker-mutator/*`
 
 #### Automated
 
-- [x] 4.1 Stryker run completes and produces an HTML report
-- [x] 4.2 Suite still green after any added assertions: `npm test`
-- [x] 4.3 Lint clean: `npm run lint`
+- [x] 4.1 Stryker run completes and produces an HTML report — 6d8872f
+- [x] 4.2 Suite still green after any added assertions: `npm test` — 6d8872f
+- [x] 4.3 Lint clean: `npm run lint` — 6d8872f
 
 #### Manual
 
-- [x] 4.4 Each survived mutant triaged with a recorded business-impact call
-- [x] 4.5 Added assertions tie to a real regression, not a cosmetic mutant
+- [x] 4.4 Each survived mutant triaged with a recorded business-impact call — 6d8872f
+- [x] 4.5 Added assertions tie to a real regression, not a cosmetic mutant — 6d8872f
 
 ### Phase 5: Cookbook Update + Status Sync
 
 #### Automated
 
-- [ ] 5.1 Markdown prettier-clean: `npx prettier --check context/foundation/test-plan.md`
-- [ ] 5.2 `git diff` shows §6.1 no longer reads "TBD"
+- [x] 5.1 Markdown prettier-clean: `npx prettier --check context/foundation/test-plan.md`
+- [x] 5.2 `git diff` shows §6.1 no longer reads "TBD"
 
 #### Manual
 
-- [ ] 5.3 A reader could add a new service test from §6.1 alone
-- [ ] 5.4 Rollout §3 status and `change.md` agree
+- [x] 5.3 A reader could add a new service test from §6.1 alone
+- [x] 5.4 Rollout §3 status and `change.md` agree
