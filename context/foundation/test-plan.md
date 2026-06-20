@@ -54,7 +54,7 @@ Each row is a discrete rollout phase that will open its own change folder via `/
 | --- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | --------------- | ----------- | ---------------------------------------------------- |
 | 1   | Runner bootstrap + generation-service coverage | Stand up the test runner; prove #2/#3 at the service (validation, caps, transient-only retry, never-logs-source-text) with a mocked provider | #2, #3         | unit + contract | complete    | context/changes/testing-runner-bootstrap-generation/ |
 | 2   | API integration + access control               | Auth gate, validation/413, two-user RLS isolation, and correct owner/origin on `/api/generate` and `/api/cards`                              | #1, #4, #5, #6 | integration     | not started | —                                                    |
-| 3   | Critical-path e2e                              | paste → generate (mocked) → edit/reject/accept → refresh-restore → save → confirm; unauth redirect                                           | #4, #3, #5     | e2e             | not started | —                                                    |
+| 3   | Critical-path e2e                              | paste → generate (mocked) → edit/reject/accept → refresh-restore → save → confirm; unauth redirect                                           | #4, #3, #5     | e2e             | complete    | tests/e2e/ (direct /10x-e2e run)                     |
 | 4   | Quality-gates wiring                           | Wire the test run into CI alongside lint + build; lock the floor                                                                             | cross-cutting  | gates           | not started | —                                                    |
 
 Status vocabulary (fixed): `not started` → `change opened` → `researched` → `planned` → `implementing` → `complete`.
@@ -69,7 +69,7 @@ The classic test base for this project. AI-native tools (if any) carry a `checke
 | API / provider mocking | `vi.fn`/`fetch` mock | shipped | §3 Phase 1: `vi.stubGlobal("fetch", …)` at the OpenAI-compatible boundary, `unstubGlobals`. MSW not needed (one fetch boundary). Never mock internal modules.                                              |
 | mutation (selective)   | Stryker              | 9.x     | §3 Phase 1: `stryker.conf.json` scoped to one module; ad-hoc gate (`npx stryker run`), not CI.                                                                                                             |
 | integration data       | local Supabase       | n/a     | `npx supabase start` (Docker). Two real users for the RLS isolation test — see §3 Phase 2.                                                                                                                 |
-| e2e                    | Playwright           | TBD     | none yet — see §3 Phase 3. Drive `/generate` under `wrangler dev`; mock the LLM call.                                                                                                                      |
+| e2e                    | Playwright           | 1.61.0  | shipped §3 Phase 3. Specs in `tests/e2e/` drive a **production build** (`astro preview`) — `astro dev` intermittently streams empty (0-byte) auth pages and its dev toolbar intercepts clicks. `storageState` setup project for auth; LLM mocked at `page.route('/api/generate')`; cleanup via the user's token (`service_role` has no GRANT on `flashcards`).            |
 | accessibility          | —                    | —       | not scoped for MVP (PRD: keyboard-first review loop is the only a11y NFR; defer dedicated a11y tests).                                                                                                     |
 
 **Stack grounding tools (current session):**
@@ -112,7 +112,14 @@ How to add new tests in this project. Each sub-section is filled in once the rel
 
 ### 6.3 Adding an e2e test
 
-- TBD — see §3 Phase 3 (drive `/generate` under `wrangler dev`, mock the LLM).
+- **Runner/layout**: Playwright (`npm run test:e2e`). Config at `playwright.config.ts`; specs in `tests/e2e/`, **one risk per file**, named after the `test-plan.md` risk it protects.
+- **Server (load-bearing)**: tests drive a **production build** via `npm run build && npm run preview`, **not** `astro dev`. The dev server intermittently streams empty (0-byte) auth pages (SSR wedging) and injects a click-intercepting dev toolbar; the preview build is deterministic. Don't leave `npm run dev` on the e2e port — `reuseExistingServer` would reuse it.
+- **Auth**: the `setup` project (`tests/e2e/auth.setup.ts`) creates a confirmed user (GoTrue admin API), logs in once through the UI, and saves `storageState` to `playwright/.auth/user.json` (gitignored). Individual tests reuse that state and **never log in through the UI**.
+- **Locators**: `getByRole`/`getByLabel`/`getByText` only — never CSS/XPath. Use `{ exact: true }` where a substring over-matches (e.g. `getByLabel("Password")` also catches the "Show password" toggle).
+- **Real vs mocked**: auth, routing, and the Supabase save (`/api/cards`) stay **real**; mock only the non-deterministic LLM at the network layer — `page.route("**/api/generate", …)` (the browser issues that fetch client-side, so it's interceptable).
+- **Hydration**: the generator is a `client:load` island; fill the source textbox via `fillSourceText()` (`support/generate.ts`), which clears-then-fills and retries until React registers the input — a single `fill()` can race hydration and be silently dropped.
+- **Cleanup / isolation**: tag each card's question with a unique run id and delete via the user's own token in `afterEach` (`deleteCardsByQuestionPrefix`); `service_role` has no GRANT on `flashcards`, and ownership work runs as the user (lessons.md). Suite is re-run-safe (verified twice back-to-back).
+- **Reference tests**: `tests/e2e/seed.spec.ts` (exemplar), `review-session-persistence.spec.ts` (risk #4), `unauthenticated-access.spec.ts` (risk #5). Rules the agent reads: `tests/e2e/CLAUDE.md`.
 
 ### 6.4 Testing access control / RLS specifically
 
@@ -121,6 +128,7 @@ How to add new tests in this project. Each sub-section is filled in once the rel
 ### 6.5 Per-rollout-phase notes
 
 - **Phase 1 (runner bootstrap + generation-service coverage)** — shipped 2026-06-20. Bootstrapped Vitest 4.x from zero (no prior runner); proved risk #3 (degradation: retry classification, `extractJson` strategies, input/output caps, malformed/empty/bad-shape, empty-is-valid regression lock, config/blank guards) and risk #2 (sentinel `sourceText` never in a throw message or `console` capture). One-off Stryker pass on `generation.ts` (score 64% → 67%) killed the parse-retryable mutants; remaining survivors (static messages, prompt text, request-shape wiring) consciously ignored — wiring deferred to Phase 2 integration. Change: `context/changes/testing-runner-bootstrap-generation/`.
+- **Phase 3 (critical-path e2e)** — shipped 2026-06-20. Stood up Playwright 1.61.0 from zero against the **production build** (`astro preview`, after `astro dev` proved unstable for SSR/hydration). Three specs in `tests/e2e/`, each **break-verified** (deliberate inversion of the protected behavior confirmed each test goes red, then reverted): unauth redirect + API 401 (#5), in-progress review session survives a refresh with accept/reject decisions intact (#4), and the paste→generate(mocked)→accept→save→confirm happy path (`seed.spec.ts`, #3/#4 save path). `storageState` via a setup project; LLM mocked at `page.route('/api/generate')`; cleanup + isolation via the user's RLS-scoped token (re-run-safe, verified twice). #3's degradation cases stay at the unit layer (Phase 1) per strategy; CI wiring deferred to Phase 4. Done as a direct `/10x-e2e` run (no change folder).
 
 ## 7. What We Deliberately Don't Test
 

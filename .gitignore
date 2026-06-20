@@ -1,6 +1,13 @@
 # build output
 dist/
 
+# playwright (e2e) — auth storageState + run artifacts
+playwright/.auth/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # mutation testing (Stryker) — report + temp dir are ad-hoc artifacts, not committed
 reports/
 .stryker-tmp/
