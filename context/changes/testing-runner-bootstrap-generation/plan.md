@@ -355,29 +355,29 @@ None — additive. New dev dependency (`vitest`, optionally `@stryker-mutator/*`
 
 #### Automated
 
-- [x] 1.1 Vitest installed: `npm ls vitest` resolves to `4.x`
-- [x] 1.2 Suite runs green: `npm test`
-- [x] 1.3 Astro types synced: `npx astro sync`
-- [x] 1.4 Lint clean (incl. test files): `npm run lint`
-- [x] 1.5 Build unaffected: `npm run build`
+- [x] 1.1 Vitest installed: `npm ls vitest` resolves to `4.x` — 0c5ffc6
+- [x] 1.2 Suite runs green: `npm test` — 0c5ffc6
+- [x] 1.3 Astro types synced: `npx astro sync` — 0c5ffc6
+- [x] 1.4 Lint clean (incl. test files): `npm run lint` — 0c5ffc6
+- [x] 1.5 Build unaffected: `npm run build` — 0c5ffc6
 
 #### Manual
 
-- [x] 1.6 `npm test` shows smoke test passing, no `astro:env/server` resolution error
-- [x] 1.7 `npm run test:watch` starts and re-runs on change
+- [x] 1.6 `npm test` shows smoke test passing, no `astro:env/server` resolution error — 0c5ffc6
+- [x] 1.7 `npm run test:watch` starts and re-runs on change — 0c5ffc6
 
 ### Phase 2: Risk #3 — Generation Degradation Suite
 
 #### Automated
 
-- [ ] 2.1 Suite passes: `npm test`
-- [ ] 2.2 Lint clean: `npm run lint`
-- [ ] 2.3 No cross-test fetch bleed (order-independent / `--no-file-parallelism` green)
+- [x] 2.1 Suite passes: `npm test`
+- [x] 2.2 Lint clean: `npm run lint`
+- [x] 2.3 No cross-test fetch bleed (order-independent / `--no-file-parallelism` green)
 
 #### Manual
 
-- [ ] 2.4 An assertion deliberately fails when the oracle is violated (has teeth)
-- [ ] 2.5 No assertion compares against card JSON copied from `generation.ts`
+- [x] 2.4 An assertion deliberately fails when the oracle is violated (has teeth)
+- [x] 2.5 No assertion compares against card JSON copied from `generation.ts`
 
 ### Phase 3: Risk #2 — Source-Text Privacy Suite
 
