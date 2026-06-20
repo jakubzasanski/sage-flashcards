@@ -1,6 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MockInstance } from "vitest";
 import { GenerationError, generateCandidates } from "@/lib/services/generation";
+import {
+  captureError,
+  cardsContent,
+  chatResponse,
+  stubFetch,
+  stubRejectingFetch,
+} from "../../../test/helpers/provider";
 
 // Risk #2 — source-text privacy leak.
 //
@@ -19,39 +26,8 @@ const SENTINEL = "SOURCE-LEAK-CANARY-7f3a9c2e";
 // sourceText that carries the canary — every call below feeds this in.
 const SOURCE_WITH_SENTINEL = `Lecture notes about photosynthesis ${SENTINEL} and the Calvin cycle.`;
 
-// --- provider-mock helpers (test layer only; mirrors the generation.test.ts pattern) ----------
-
-function chatResponse(content: string): Response {
-  return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function cardsContent(cards: { question: string; answer: string }[]): string {
-  return JSON.stringify({ cards });
-}
-
-// Install a `fetch` stub that returns a fresh Response each call (retried, body-reading paths safe).
-function installFetch(impl: () => Response): void {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn<typeof fetch>().mockImplementation(() => Promise.resolve(impl())),
-  );
-}
-
-function installRejectingFetch(): void {
-  vi.stubGlobal("fetch", vi.fn<typeof fetch>().mockRejectedValue(new TypeError("connection reset")));
-}
-
-async function captureError(promise: Promise<unknown>): Promise<unknown> {
-  try {
-    await promise;
-  } catch (err: unknown) {
-    return err;
-  }
-  throw new Error("Expected the promise to reject, but it resolved.");
-}
+// Provider-mock helpers (chatResponse / cardsContent / stubFetch / stubRejectingFetch / captureError)
+// are shared from test/helpers/provider.ts so this suite and generation.test.ts can't drift apart.
 
 // --- console spies ------------------------------------------------------------------------------
 
@@ -89,37 +65,37 @@ describe("generateCandidates — source-text privacy on failure (risk #2)", () =
     {
       name: "transient 500 upstream error",
       install: () => {
-        installFetch(() => new Response("err", { status: 500 }));
+        stubFetch(() => new Response("err", { status: 500 }));
       },
     },
     {
       name: "deterministic 401 upstream error",
       install: () => {
-        installFetch(() => new Response("err", { status: 401 }));
+        stubFetch(() => new Response("err", { status: 401 }));
       },
     },
     {
       name: "network-level rejection",
       install: () => {
-        installRejectingFetch();
+        stubRejectingFetch();
       },
     },
     {
       name: "non-JSON response body",
       install: () => {
-        installFetch(() => new Response("<<<not json>>>", { status: 200 }));
+        stubFetch(() => new Response("<<<not json>>>", { status: 200 }));
       },
     },
     {
       name: "missing message content",
       install: () => {
-        installFetch(() => new Response(JSON.stringify({ choices: [{ message: {} }] }), { status: 200 }));
+        stubFetch(() => new Response(JSON.stringify({ choices: [{ message: {} }] }), { status: 200 }));
       },
     },
     {
       name: "schema-mismatched content",
       install: () => {
-        installFetch(() => chatResponse(JSON.stringify({ cards: [{ question: "Q" }] })));
+        stubFetch(() => chatResponse(JSON.stringify({ cards: [{ question: "Q" }] })));
       },
     },
   ];
@@ -143,13 +119,13 @@ describe("generateCandidates — source-text privacy on success (risk #2)", () =
     {
       name: "valid cards",
       install: () => {
-        installFetch(() => chatResponse(cardsContent([{ question: "Q", answer: "A" }])));
+        stubFetch(() => chatResponse(cardsContent([{ question: "Q", answer: "A" }])));
       },
     },
     {
       name: "empty cards",
       install: () => {
-        installFetch(() => chatResponse(cardsContent([])));
+        stubFetch(() => chatResponse(cardsContent([])));
       },
     },
   ];
@@ -171,10 +147,22 @@ describe("generateCandidates — privacy assertion is sensitive (positive contro
     // Here the canary originates from the provider's own card content, NOT from sourceText. The
     // service faithfully returns provider output, so it appears — proving the success-branch
     // assertion above is not vacuous: a sentinel in output IS detectable when one is really there.
-    installFetch(() => chatResponse(cardsContent([{ question: `What is ${SENTINEL}?`, answer: "A canary." }])));
+    stubFetch(() => chatResponse(cardsContent([{ question: `What is ${SENTINEL}?`, answer: "A canary." }])));
 
     const cards = await generateCandidates("plain source text with no canary");
 
     expect(JSON.stringify(cards)).toContain(SENTINEL);
+  });
+
+  it("expectConsoleNeverLeaked throws when a console spy actually sees the sentinel", () => {
+    // Proves the console guard is not vacuous: the service logs nothing today, so the guard's loop
+    // body never runs in the real tests. Feed the sentinel to a spy directly and assert the guard
+    // catches it — otherwise a refactor that neutralized expectConsoleNeverLeaked would go unnoticed.
+    // eslint-disable-next-line no-console -- deliberately feeding the spied console to test the guard
+    console.error(`leaked: ${SENTINEL}`);
+
+    expect(() => {
+      expectConsoleNeverLeaked();
+    }).toThrow();
   });
 });

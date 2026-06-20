@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GenerationError, MAX_CANDIDATES, MAX_SOURCE_CHARS, generateCandidates } from "@/lib/services/generation";
+import { captureError, cardsContent, chatResponse, stubFetch } from "../../../test/helpers/provider";
 
 // Risk #3 — generation degrades the wedge.
 //
@@ -17,37 +18,6 @@ const SOURCE = "Some pasted source text to distill.";
 interface SentBody {
   model: string;
   messages: { role: string; content: string }[];
-}
-
-// Build a fresh provider success response wrapping `content` as the model reply. Fresh per call so
-// retried paths (which read the body) never trip "Body already consumed" on a reused Response.
-function chatResponse(content: string): Response {
-  return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-// Serialize cards into the `{"cards":[...]}` envelope the model is asked to return.
-function cardsContent(cards: { question: string; answer: string }[]): string {
-  return JSON.stringify({ cards });
-}
-
-// Install a `fetch` stub whose implementation runs fresh each call (so body-reading retries are safe).
-function stubFetch(impl: () => Response): ReturnType<typeof vi.fn<typeof fetch>> {
-  const fetchMock = vi.fn<typeof fetch>().mockImplementation(() => Promise.resolve(impl()));
-  vi.stubGlobal("fetch", fetchMock);
-  return fetchMock;
-}
-
-// Await a promise expected to reject and return the rejection value for inspection.
-async function captureError(promise: Promise<unknown>): Promise<unknown> {
-  try {
-    await promise;
-  } catch (err: unknown) {
-    return err;
-  }
-  throw new Error("Expected the promise to reject, but it resolved.");
 }
 
 afterEach(() => {
@@ -181,6 +151,9 @@ describe("generateCandidates — caps (risk #3)", () => {
 
     await generateCandidates(longSource);
 
+    // Assert the call happened before indexing its args, so a never-called fetch fails as a clean
+    // assertion rather than a raw TypeError on undefined.
+    expect(fetchMock).toHaveBeenCalledOnce();
     const init = fetchMock.mock.calls[0][1];
     if (typeof init?.body !== "string") {
       throw new Error("Expected the provider request to carry a string JSON body.");
@@ -261,6 +234,8 @@ describe("generateCandidates — guard paths (risk #3)", () => {
 
   it("throws a non-retryable config error and never calls the provider when LLM_API_KEY is missing", async () => {
     // The alias makes `astro:env/server` resolvable; this per-test mock overrides the value to falsy.
+    // try/finally guarantees the module-mock + registry reset are undone even if an assertion throws,
+    // so the doMock can never bleed into sibling test files sharing this worker.
     vi.resetModules();
     vi.doMock("astro:env/server", () => ({
       LLM_API_KEY: "",
@@ -270,17 +245,19 @@ describe("generateCandidates — guard paths (risk #3)", () => {
     const fetchMock = vi.fn<typeof fetch>();
     vi.stubGlobal("fetch", fetchMock);
 
-    const { generateCandidates: generateWithoutKey, GenerationError: ScopedGenerationError } =
-      await import("@/lib/services/generation");
+    try {
+      const { generateCandidates: generateWithoutKey, GenerationError: ScopedGenerationError } =
+        await import("@/lib/services/generation");
 
-    const err = await captureError(generateWithoutKey(SOURCE));
+      const err = await captureError(generateWithoutKey(SOURCE));
 
-    expect(err).toBeInstanceOf(ScopedGenerationError);
-    expect((err as GenerationError).kind).toBe("config");
-    expect((err as GenerationError).retryable).toBe(false);
-    expect(fetchMock).not.toHaveBeenCalled();
-
-    vi.doUnmock("astro:env/server");
-    vi.resetModules();
+      expect(err).toBeInstanceOf(ScopedGenerationError);
+      expect((err as GenerationError).kind).toBe("config");
+      expect((err as GenerationError).retryable).toBe(false);
+      expect(fetchMock).not.toHaveBeenCalled();
+    } finally {
+      vi.doUnmock("astro:env/server");
+      vi.resetModules();
+    }
   });
 });
