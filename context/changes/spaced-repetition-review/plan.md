@@ -488,28 +488,28 @@ before considering the slice complete.
 
 #### Automated
 
-- [x] 2.1 Unit tests pass (`npm test`)
-- [x] 2.2 Lint passes (`npm run lint`)
-- [x] 2.3 `ts-fsrs` resolves under Vitest node environment
+- [x] 2.1 Unit tests pass (`npm test`) — 3636ae1
+- [x] 2.2 Lint passes (`npm run lint`) — 3636ae1
+- [x] 2.3 `ts-fsrs` resolves under Vitest node environment — 3636ae1
 
 #### Manual
 
-- [x] 2.4 `Easy` first interval visibly longer than `Good` (wiring sanity)
+- [x] 2.4 `Easy` first interval visibly longer than `Good` (wiring sanity) — 3636ae1
 
 ### Phase 3: Review API Endpoints
 
 #### Automated
 
-- [ ] 3.1 Handler-property tests pass (`npm test`)
-- [ ] 3.2 RLS integration test passes (`npm run test:integration`)
-- [ ] 3.3 Lint + build pass (`npm run lint && npm run build`)
-- [ ] 3.4 Type checking passes (`npx astro sync && npm run lint`)
+- [x] 3.1 Handler-property tests pass (`npm test`)
+- [x] 3.2 RLS integration test passes (`npm run test:integration`)
+- [x] 3.3 Lint + build pass (`npm run lint && npm run build`)
+- [x] 3.4 Type checking passes (`npx astro sync && npm run lint`)
 
 #### Manual
 
-- [ ] 3.5 `GET /api/review/due` returns due cards oldest-first, capped at 100
-- [ ] 3.6 `POST /api/review/rate` returns and persists a later `due`
-- [ ] 3.7 Rating another user's cardId returns 404 (no write)
+- [x] 3.5 `GET /api/review/due` returns due cards oldest-first, capped at 100
+- [x] 3.6 `POST /api/review/rate` returns and persists a later `due`
+- [x] 3.7 Rating another user's cardId returns 404 (no write)
 
 ### Phase 4: Keyboard-Driven Review UI
 

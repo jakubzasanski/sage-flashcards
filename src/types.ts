@@ -46,3 +46,24 @@ export type FsrsSchedule = Pick<
 // The four-level recall scale (FR-016). Maps to ts-fsrs Rating Again/Hard/Good/Easy in the
 // scheduling service; 0 (Manual) is intentionally excluded.
 export type ReviewRating = 1 | 2 | 3 | 4;
+
+// A single card presented in a review session — only the fields the client renders. The schedule
+// stays server-side; the client sends back just { cardId, rating }, never schedule values.
+export type ReviewCard = Pick<Flashcard, "id" | "question" | "answer">;
+
+// Response of GET /api/review/due. `nextDueAt` is the soonest upcoming due time when nothing is
+// currently due (null if the deck has no cards at all) — powers the "all caught up" screen.
+export interface DueResponse {
+  cards: ReviewCard[];
+  nextDueAt: string | null;
+}
+
+// Request/response for POST /api/review/rate.
+export interface RateRequest {
+  cardId: string;
+  rating: ReviewRating;
+}
+
+export interface RateResponse {
+  schedule: FsrsSchedule;
+}
