@@ -1,10 +1,10 @@
 ---
 change_id: first-ai-cards-to-deck
 title: Generate AI flashcards from pasted text and save accepted ones to the deck
-status: implemented
+status: archived
 created: 2026-06-19
-updated: 2026-06-19
-archived_at: null
+updated: 2026-06-21
+archived_at: 2026-06-21T14:15:16Z
 ---
 
 ## Notes
