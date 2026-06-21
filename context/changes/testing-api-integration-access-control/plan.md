@@ -362,30 +362,30 @@ re-run `npm run test:e2e` to confirm parity. No data migrations.
 
 #### Automated
 
-- [x] 1.1 `npm test` passes with local Supabase stopped (Docker-free floor intact)
-- [x] 1.2 `npm run test:e2e` passes using the relocated shared helpers
-- [x] 1.3 `npm run lint` passes
-- [x] 1.4 `npm run build` passes (run `npx astro sync` first if env types touched)
+- [x] 1.1 `npm test` passes with local Supabase stopped (Docker-free floor intact) — a91ea76
+- [x] 1.2 `npm run test:e2e` passes using the relocated shared helpers — a91ea76
+- [x] 1.3 `npm run lint` passes — a91ea76
+- [x] 1.4 `npm run build` passes (run `npx astro sync` first if env types touched) — a91ea76
 
 #### Manual
 
-- [x] 1.5 `npm test` ran the unit project only (no Supabase reach)
-- [x] 1.6 `test/support/**` files imported, never reported as empty suites
+- [x] 1.5 `npm test` ran the unit project only (no Supabase reach) — a91ea76
+- [x] 1.6 `test/support/**` files imported, never reported as empty suites — a91ea76
 
 ### Phase 2: Handler-property tests (no DB)
 
 #### Automated
 
-- [ ] 2.1 `npm test` passes (Docker-free) including both new handler suites
-- [ ] 2.2 Tests assert exact status codes per route (401/413/400/200/201/500/502)
-- [ ] 2.3 Owner-forcing test proves `source:"ai"` + `user_id===user.id` and overrides client-supplied fields
-- [ ] 2.4 Privacy assertion: no `sourceText` / row contents in any error body
-- [ ] 2.5 `npm run lint` passes
+- [x] 2.1 `npm test` passes (Docker-free) including both new handler suites
+- [x] 2.2 Tests assert exact status codes per route (401/413/400/200/201/500/502)
+- [x] 2.3 Owner-forcing test proves `source:"ai"` + `user_id===user.id` and overrides client-supplied fields
+- [x] 2.4 Privacy assertion: no `sourceText` / row contents in any error body
+- [x] 2.5 `npm run lint` passes
 
 #### Manual
 
-- [ ] 2.6 Each new test break-verified (invert protected behavior → red → revert)
-- [ ] 2.7 Zod-cap cases use boundary values (`MAX_*` passes, `MAX_*+1` fails)
+- [x] 2.6 Each new test break-verified (invert protected behavior → red → revert)
+- [x] 2.7 Zod-cap cases use boundary values (`MAX_*` passes, `MAX_*+1` fails)
 
 ### Phase 3: RLS two-user isolation (real local Supabase)
 
