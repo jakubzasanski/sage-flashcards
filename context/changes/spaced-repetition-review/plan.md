@@ -500,31 +500,31 @@ before considering the slice complete.
 
 #### Automated
 
-- [x] 3.1 Handler-property tests pass (`npm test`)
-- [x] 3.2 RLS integration test passes (`npm run test:integration`)
-- [x] 3.3 Lint + build pass (`npm run lint && npm run build`)
-- [x] 3.4 Type checking passes (`npx astro sync && npm run lint`)
+- [x] 3.1 Handler-property tests pass (`npm test`) — af6a1da
+- [x] 3.2 RLS integration test passes (`npm run test:integration`) — af6a1da
+- [x] 3.3 Lint + build pass (`npm run lint && npm run build`) — af6a1da
+- [x] 3.4 Type checking passes (`npx astro sync && npm run lint`) — af6a1da
 
 #### Manual
 
-- [x] 3.5 `GET /api/review/due` returns due cards oldest-first, capped at 100
-- [x] 3.6 `POST /api/review/rate` returns and persists a later `due`
-- [x] 3.7 Rating another user's cardId returns 404 (no write)
+- [x] 3.5 `GET /api/review/due` returns due cards oldest-first, capped at 100 — af6a1da
+- [x] 3.6 `POST /api/review/rate` returns and persists a later `due` — af6a1da
+- [x] 3.7 Rating another user's cardId returns 404 (no write) — af6a1da
 
 ### Phase 4: Keyboard-Driven Review UI
 
 #### Automated
 
-- [ ] 4.1 Lint passes (`npm run lint`)
-- [ ] 4.2 Build passes (`npm run build`)
-- [ ] 4.3 Type checking passes (`npx astro sync && npm run lint`)
-- [ ] 4.4 Existing unit + integration suites still green (`npm test && npm run test:integration`)
+- [x] 4.1 Lint passes (`npm run lint`)
+- [x] 4.2 Build passes (`npm run build`)
+- [x] 4.3 Type checking passes (`npx astro sync && npm run lint`)
+- [x] 4.4 Existing unit + integration suites still green (`npm test && npm run test:integration`)
 
 #### Manual
 
-- [ ] 4.5 Entire loop operable keyboard-only (Space reveal, 1–4 rate, advance)
-- [ ] 4.6 Transitions feel instant (<300ms) on a throttled connection
-- [ ] 4.7 Refresh mid-session resumes at next un-rated card; prior ratings persisted
-- [ ] 4.8 `Again`-rated card reappears later in the same sitting
-- [ ] 4.9 Empty state shows "all caught up" + next-due; dashboard due-count matches
-- [ ] 4.10 Rating keys inert before reveal
+- [x] 4.5 Entire loop operable keyboard-only (Space reveal, 1–4 rate, advance)
+- [x] 4.6 Transitions feel instant (<300ms) on a throttled connection
+- [x] 4.7 Refresh mid-session resumes at next un-rated card; prior ratings persisted
+- [x] 4.8 `Again`-rated card reappears later in the same sitting
+- [x] 4.9 Empty state shows "all caught up" + next-due; dashboard due-count matches
+- [x] 4.10 Rating keys inert before reveal

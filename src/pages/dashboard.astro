@@ -1,7 +1,20 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase";
 
 const { user } = Astro.locals;
+
+// Count cards due for review now (due <= now), RLS-scoped to the signed-in user, to drive the
+// review entry point. head:true fetches only the count, not the rows.
+let dueCount = 0;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (supabase) {
+  const { count } = await supabase
+    .from("flashcards")
+    .select("id", { count: "exact", head: true })
+    .lte("due", new Date().toISOString());
+  dueCount = count ?? 0;
+}
 ---
 
 <Layout title="Dashboard">
@@ -14,6 +27,25 @@ const { user } = Astro.locals;
         Welcome, <span class="font-semibold text-white">{user?.email}</span>
       </p>
       <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
+
+      <div class="mt-6 flex flex-col items-center gap-2">
+        {
+          dueCount > 0 ? (
+            <a
+              href="/review"
+              class="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium transition-colors hover:bg-white/20"
+            >
+              Review {dueCount} {dueCount === 1 ? "card" : "cards"} due
+            </a>
+          ) : (
+            <p class="text-sm text-blue-100/40">No cards due for review right now.</p>
+          )
+        }
+        <a href="/generate" class="text-sm text-blue-100/60 underline-offset-2 hover:text-white hover:underline">
+          Generate flashcards
+        </a>
+      </div>
+
       <form method="POST" action="/api/auth/signout" class="mt-6">
         <button
           type="submit"
