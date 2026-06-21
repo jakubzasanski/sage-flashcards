@@ -9,6 +9,12 @@
 // We build `request` as a plain object — NOT a real `Request` — because undici recomputes the
 // `content-length` header from the actual body on a real Request, which would defeat the 413 test
 // that needs to assert an arbitrary oversized content-length without buffering a huge body.
+//
+// This stand-in is intentionally minimal: it implements only the members the handlers read today
+// (headers, json). If a handler starts reading `request.text()`, `request.body`, `request.url`, or
+// `request.method`, EXTEND this factory — otherwise the missing member returns undefined and a test
+// could pass against behavior that breaks in the real Astro/workerd runtime (the e2e suite is the
+// real-runtime cross-check).
 import type { APIContext } from "astro";
 
 interface ApiContextOptions {

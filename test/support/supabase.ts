@@ -28,6 +28,8 @@ export async function ensureTestUser(email: string, password: string): Promise<v
 }
 
 // Cache access tokens per email so two distinct users (e.g. an RLS isolation test) don't collide.
+// Assumes one password per email for the suite's lifetime (the key ignores password) and does not
+// expire entries — fine for local-dev tokens within a single run; not a session manager.
 const tokenCache = new Map<string, string>();
 
 // Sign in (password grant) and return the user's access token, cached by email. Defaults to the

@@ -52,6 +52,11 @@ afterAll(async () => {
 
 const ownRowQuery = `?question=like.${encodeURIComponent(runId + "*")}`;
 
+// NOTE: these tests deliberately share the single row seeded in beforeAll (a cross-user fixture is
+// expensive to stand up per-test) and therefore run IN ORDER: the read-back assertions (B cannot
+// mutate A's row) must precede the one mutator that edits A's row, which is placed last. Do not run
+// this file with `--sequence.shuffle` or `test.concurrent` — reordering would let a mutation
+// invalidate an earlier "unchanged" assertion and produce a false pass.
 describe("flashcards RLS — two-user isolation (risk #1)", () => {
   it("user B sees none of user A's rows", async () => {
     const res = await flashcardsRequest("GET", tokenB, { query: ownRowQuery });
