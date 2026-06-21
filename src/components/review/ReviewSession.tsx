@@ -8,9 +8,11 @@ import type { DueResponse, ReviewCard, ReviewRating } from "@/types";
 // Roadmap S-02 review loop. Stateless session: the queue is fetched once from /api/review/due, and
 // each rating is persisted server-side (the schedule is the source of truth — refresh/navigation
 // resumes by re-querying). Advancing is optimistic local state so transitions are instant (<300ms
-// NFR); the rating POST runs in the background, and a failed save is surfaced + retryable, never
-// silently dropped. A card rated Again is re-appended to the end of THIS sitting's queue (no
-// mid-session server re-query) so the user re-sees it now.
+// NFR); the rating POST runs in the background, and a failed save is surfaced + retryable for the
+// rest of the session. If the user leaves before retrying, no data is corrupted — the schedule is
+// the source of truth, so an un-persisted card simply stays due and re-surfaces next session. A
+// card rated Again is re-appended to the end of THIS sitting's queue (no mid-session server
+// re-query) so the user re-sees it now.
 
 type Status = "loading" | "reviewing" | "caughtUp" | "error";
 
@@ -69,7 +71,8 @@ export default function ReviewSession() {
     void loadQueue();
   }, [loadQueue]);
 
-  // Persist a rating in the background. A failed save is recorded (never lost) and shown for retry.
+  // Persist a rating in the background. A failed save is recorded and shown for in-session retry;
+  // if never retried, the card stays due (un-advanced) rather than being corrupted.
   const persist = useCallback(async (cardId: string, rating: ReviewRating) => {
     try {
       const res = await fetch("/api/review/rate", {
@@ -172,7 +175,7 @@ export default function ReviewSession() {
   return (
     <div className="space-y-4">
       <div className="text-center text-sm text-blue-100/60">
-        Card {index + 1} of {queue.length}
+        {queue.length - index} {queue.length - index === 1 ? "card" : "cards"} left
       </div>
 
       <Card className="border-white/10 bg-white/10">

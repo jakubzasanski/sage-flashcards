@@ -1,7 +1,7 @@
 ---
 change_id: spaced-repetition-review
 title: Keyboard-driven spaced-repetition review session
-status: implemented
+status: impl_reviewed
 created: 2026-06-21
 updated: 2026-06-21
 archived_at: null
