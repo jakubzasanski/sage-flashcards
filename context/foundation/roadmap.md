@@ -3,7 +3,7 @@ project: 10xCards
 version: 1
 status: draft
 created: 2026-06-19
-updated: 2026-06-19
+updated: 2026-06-21
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -31,7 +31,7 @@ top_blocker: time
 | ----- | ---------------------------- | ---------------------------------------------------------------- | ------------- | ------------------------- | -------- |
 | F-01  | card-persistence-foundation  | (foundation) user-owned cards persist with RLS + origin tracking | —             | Access Control; No-data-loss | ready    |
 | S-01  | first-ai-cards-to-deck       | paste text → accept AI cards → save to deck                       | F-01          | US-01, FR-008, FR-009, FR-010 | proposed |
-| S-02  | spaced-repetition-review     | run a keyboard-driven spaced-repetition review session           | F-01, S-01    | US-02, FR-015, FR-016     | proposed |
+| S-02  | spaced-repetition-review     | run a keyboard-driven spaced-repetition review session           | F-01, S-01    | US-02, FR-015, FR-016     | done     |
 | S-03  | deck-management              | browse, edit (schedule-preserving), and delete cards             | F-01          | FR-012, FR-013, FR-014    | proposed |
 | S-04  | manual-card-creation         | create a flashcard manually (question + answer)                  | F-01          | FR-011                    | proposed |
 | S-05  | account-access-recovery      | reset a forgotten password; auth flows meet PRD criteria         | —             | FR-003, FR-004, FR-005, FR-006, FR-007 | ready    |
@@ -102,7 +102,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Which off-the-shelf spaced-repetition library/algorithm (FR-015 leaves the choice to the tech-stack step)? — Owner: project lead. Block: no (selectable in `/10x-plan`).
 - **Risk:** Completes the primary success criterion's full loop (sign-up → generate → review). Extends F-01's schema with schedule columns at the point they're first exercised. Sequenced right after the north star because under `speed` the must-have launch path is generate-then-review, not deck-browsing.
-- **Status:** proposed
+- **Status:** done
 
 ### S-03: Deck management
 
@@ -183,4 +183,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends an entry here — and flips that item's `Status` to `done` — when a change whose `Change ID` matches a roadmap item is archived. Do NOT pre-populate.)
+- **S-02: user can start a review session where an off-the-shelf scheduler picks due-card order, reveal each answer, rate recall on a four-level scale (Again/Hard/Good/Easy) with the schedule updating after each rating, and resume mid-session after navigation/refresh/network loss without losing progress — fully keyboard-driven.** — Archived 2026-06-21 → `context/archive/2026-06-21-spaced-repetition-review/`. Lesson: —.
