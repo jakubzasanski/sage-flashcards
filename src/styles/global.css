@@ -1181,7 +1181,7 @@
   /* ---------- auth ---------- */
   .auth-wrap {
     position: relative;
-    min-height: 100vh;
+    min-height: 100dvh;
     display: grid;
     place-items: center;
     padding: 40px 20px;
@@ -1412,7 +1412,7 @@
   body:has(.auth-wrap) {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100dvh;
   }
   body:has(.auth-wrap) .auth-wrap {
     flex: 1 0 auto;
