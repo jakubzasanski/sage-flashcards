@@ -579,29 +579,29 @@ considering the slice complete.
 
 #### Automated
 
-- [x] 2.1 Handler-property tests pass (`npm test`)
-- [x] 2.2 Lint + build pass (`npm run lint && npm run build`)
-- [x] 2.3 Type checking passes (`npx astro sync && npm run lint`)
+- [x] 2.1 Handler-property tests pass (`npm test`) — 3deeb20
+- [x] 2.2 Lint + build pass (`npm run lint && npm run build`) — 3deeb20
+- [x] 2.3 Type checking passes (`npx astro sync && npm run lint`) — 3deeb20
 
 #### Manual
 
-- [x] 2.4 `GET /api/cards` returns newest 50; `?offset=50` returns the next page; `hasMore` flips on last page; `nextOffset` advances
-- [x] 2.5 Existing `POST /api/cards` (generate→save) behavior unchanged
+- [x] 2.4 `GET /api/cards` returns newest 50; `?offset=50` returns the next page; `hasMore` flips on last page; `nextOffset` advances — 3deeb20
+- [x] 2.5 Existing `POST /api/cards` (generate→save) behavior unchanged — 3deeb20
 
 ### Phase 3: Mutation endpoints — `PATCH` / `DELETE /api/cards/[id]`
 
 #### Automated
 
-- [ ] 3.1 Handler-property tests pass, incl. the FR-013 payload-keys guard (`npm test`)
-- [ ] 3.2 RLS integration test passes, incl. schedule-unchanged-after-edit (`npm run test:integration`)
-- [ ] 3.3 Lint + build pass (`npm run lint && npm run build`)
-- [ ] 3.4 Type checking passes (`npx astro sync && npm run lint`)
+- [x] 3.1 Handler-property tests pass, incl. the FR-013 payload-keys guard (`npm test`)
+- [x] 3.2 RLS integration test passes, incl. schedule-unchanged-after-edit (`npm run test:integration`)
+- [x] 3.3 Lint + build pass (`npm run lint && npm run build`)
+- [x] 3.4 Type checking passes (`npx astro sync && npm run lint`)
 
 #### Manual
 
-- [ ] 3.5 PATCH own card persists Q/A and leaves `due`/`state`/etc. unchanged
-- [ ] 3.6 PATCH/DELETE another user's cardId returns 404 (no effect)
-- [ ] 3.7 DELETE own card returns 200 and the card is gone from a subsequent `GET /api/cards`
+- [x] 3.5 PATCH own card persists Q/A and leaves `due`/`state`/etc. unchanged
+- [x] 3.6 PATCH/DELETE another user's cardId returns 404 (no effect)
+- [x] 3.7 DELETE own card returns 200 and the card is gone from a subsequent `GET /api/cards`
 
 ### Phase 4: Deck UI — `/cards` page + `DeckView` island
 
