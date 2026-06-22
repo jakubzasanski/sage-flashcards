@@ -17,6 +17,18 @@ export type CardSource = "ai" | "manual";
 export type CreateFlashcardCommand = Pick<FlashcardInsert, "question" | "answer" | "source">;
 export type UpdateFlashcardCommand = Pick<FlashcardUpdate, "question" | "answer">;
 
+// Deck management (roadmap S-03). The browse view's card shape — only the fields the deck list
+// renders; the FSRS schedule stays server-side, as in ReviewCard.
+export type DeckCard = Pick<Flashcard, "id" | "question" | "answer" | "created_at">;
+
+// Response of GET /api/cards. `nextOffset` is a 0-based ROW offset (not a page index), so the
+// client can decrement it by one per delete and keep "Load more" aligned with the live ordering.
+export interface DeckPage {
+  cards: DeckCard[];
+  nextOffset: number;
+  hasMore: boolean;
+}
+
 // AI generation flow (roadmap S-01).
 // A single AI-distilled candidate card, before the user accepts it into the deck.
 export interface CandidateCard {

@@ -567,26 +567,26 @@ considering the slice complete.
 
 #### Automated
 
-- [x] 1.1 Existing unit suite still green (`npm test`)
-- [x] 1.2 Lint passes (`npm run lint`)
-- [x] 1.3 Type checking passes (`npx astro sync && npm run lint`)
+- [x] 1.1 Existing unit suite still green (`npm test`) — 338d2ac
+- [x] 1.2 Lint passes (`npm run lint`) — 338d2ac
+- [x] 1.3 Type checking passes (`npx astro sync && npm run lint`) — 338d2ac
 
 #### Manual
 
-- [x] 1.4 `makeApiContext({ params: { id } }).params.id` returns the supplied id (sanity)
+- [x] 1.4 `makeApiContext({ params: { id } }).params.id` returns the supplied id (sanity) — 338d2ac
 
 ### Phase 2: List endpoint — `GET /api/cards` (paginated)
 
 #### Automated
 
-- [ ] 2.1 Handler-property tests pass (`npm test`)
-- [ ] 2.2 Lint + build pass (`npm run lint && npm run build`)
-- [ ] 2.3 Type checking passes (`npx astro sync && npm run lint`)
+- [x] 2.1 Handler-property tests pass (`npm test`)
+- [x] 2.2 Lint + build pass (`npm run lint && npm run build`)
+- [x] 2.3 Type checking passes (`npx astro sync && npm run lint`)
 
 #### Manual
 
-- [ ] 2.4 `GET /api/cards` returns newest 50; `?offset=50` returns the next page; `hasMore` flips on last page; `nextOffset` advances
-- [ ] 2.5 Existing `POST /api/cards` (generate→save) behavior unchanged
+- [x] 2.4 `GET /api/cards` returns newest 50; `?offset=50` returns the next page; `hasMore` flips on last page; `nextOffset` advances
+- [x] 2.5 Existing `POST /api/cards` (generate→save) behavior unchanged
 
 ### Phase 3: Mutation endpoints — `PATCH` / `DELETE /api/cards/[id]`
 

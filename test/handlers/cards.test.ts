@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MAX_CANDIDATES } from "@/lib/services/generation";
 import { createClient } from "@/lib/supabase";
-import { POST } from "@/pages/api/cards";
+import { GET, POST } from "@/pages/api/cards";
+import type { DeckCard } from "@/types";
 import { makeApiContext } from "../support/api-context";
 
 // Phase 2 / risks #5 (auth gate), #6 (resource abuse), #1 (owner forcing), #4 ("persist nothing
@@ -31,6 +32,122 @@ function card(question: string, answer: string, extra: Record<string, unknown> =
 
 afterEach(() => {
   vi.clearAllMocks();
+});
+
+// --- GET /api/cards (roadmap S-03, FR-012): paginated newest-first browse. ---
+// A chainable, call-recording fake mirroring review-due.test.ts. The route's terminal await is
+// `.range(...)`, so the builder resolves the queued result via `.then`.
+const PAGE_SIZE = 50;
+const GET_SENTINEL = "ROW-LEAK-CANARY-cards-get-9f1";
+
+function fakeListClient(result: { data?: unknown; error?: unknown }) {
+  const calls: { method: string; args: unknown[] }[] = [];
+  const from = vi.fn((table: string) => {
+    calls.push({ method: "from", args: [table] });
+    const builder: Record<string, unknown> = {};
+    for (const m of ["select", "order", "range"]) {
+      builder[m] = vi.fn((...args: unknown[]) => {
+        calls.push({ method: m, args });
+        return builder;
+      });
+    }
+    builder.then = (resolve: (value: unknown) => unknown) => resolve(result);
+    return builder;
+  });
+  return { client: { from } as unknown as ReturnType<typeof createClient>, from, calls };
+}
+
+const findCall = (calls: { method: string; args: unknown[] }[], method: string) =>
+  calls.find((c) => c.method === method);
+
+function deckRows(n: number): DeckCard[] {
+  return Array.from({ length: n }, (_v, i) => ({
+    id: `id-${i}`,
+    question: `q${i}`,
+    answer: `a${i}`,
+    created_at: `2026-06-${String((i % 28) + 1).padStart(2, "0")}T00:00:00.000Z`,
+  }));
+}
+
+describe("GET /api/cards — auth & config gates", () => {
+  it("returns 401 when there is no authenticated user", async () => {
+    const res = await GET(makeApiContext({ user: null }));
+    expect(res.status).toBe(401);
+    expect(mockedCreate).not.toHaveBeenCalled();
+  });
+
+  it("returns 500 when the client cannot be created", async () => {
+    mockedCreate.mockReturnValue(null);
+    const res = await GET(makeApiContext());
+    expect(res.status).toBe(500);
+  });
+
+  it.each([
+    ["negative offset", "-1"],
+    ["non-integer offset", "1.5"],
+    ["garbage offset", "abc"],
+  ])("returns 400 on %s (and does not query)", async (_label, offset) => {
+    const res = await GET(makeApiContext({ searchParams: { offset } }));
+    expect(res.status).toBe(400);
+    expect(mockedCreate).not.toHaveBeenCalled();
+  });
+
+  it("returns a generic 500 without echoing row contents on a DB error", async () => {
+    const { client } = fakeListClient({ data: null, error: { message: GET_SENTINEL } });
+    mockedCreate.mockReturnValue(client);
+    const res = await GET(makeApiContext());
+    expect(res.status).toBe(500);
+    expect(await res.text()).not.toContain(GET_SENTINEL);
+  });
+});
+
+describe("GET /api/cards — pagination contract", () => {
+  it("queries newest-first and ranges [offset, offset+PAGE_SIZE] for offset=0", async () => {
+    const { client, calls } = fakeListClient({ data: deckRows(3), error: null });
+    mockedCreate.mockReturnValue(client);
+
+    const res = await GET(makeApiContext());
+
+    expect(res.status).toBe(200);
+    expect(findCall(calls, "order")?.args).toEqual(["created_at", { ascending: false }]);
+    expect(findCall(calls, "range")?.args).toEqual([0, PAGE_SIZE]);
+    const body = (await res.json()) as { cards: DeckCard[]; nextOffset: number; hasMore: boolean };
+    expect(body.hasMore).toBe(false);
+    expect(body.nextOffset).toBe(3); // offset 0 + 3 cards
+  });
+
+  it("ranges from the supplied offset", async () => {
+    const { client, calls } = fakeListClient({ data: deckRows(0), error: null });
+    mockedCreate.mockReturnValue(client);
+
+    await GET(makeApiContext({ searchParams: { offset: "100" } }));
+
+    expect(findCall(calls, "range")?.args).toEqual([100, 100 + PAGE_SIZE]);
+  });
+
+  it("sets hasMore and trims to PAGE_SIZE when PAGE_SIZE+1 rows return", async () => {
+    const { client } = fakeListClient({ data: deckRows(PAGE_SIZE + 1), error: null });
+    mockedCreate.mockReturnValue(client);
+
+    const res = await GET(makeApiContext({ searchParams: { offset: "100" } }));
+
+    const body = (await res.json()) as { cards: DeckCard[]; nextOffset: number; hasMore: boolean };
+    expect(body.hasMore).toBe(true);
+    expect(body.cards).toHaveLength(PAGE_SIZE); // trimmed
+    expect(body.nextOffset).toBe(100 + PAGE_SIZE); // offset + trimmed length
+  });
+
+  it("hasMore is false on a full-but-final page (exactly PAGE_SIZE rows)", async () => {
+    const { client } = fakeListClient({ data: deckRows(PAGE_SIZE), error: null });
+    mockedCreate.mockReturnValue(client);
+
+    const res = await GET(makeApiContext());
+
+    const body = (await res.json()) as { cards: DeckCard[]; nextOffset: number; hasMore: boolean };
+    expect(body.hasMore).toBe(false);
+    expect(body.cards).toHaveLength(PAGE_SIZE);
+    expect(body.nextOffset).toBe(PAGE_SIZE);
+  });
 });
 
 describe("POST /api/cards — auth gate (risk #5)", () => {

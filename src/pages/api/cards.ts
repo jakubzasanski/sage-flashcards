@@ -1,10 +1,19 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
-import type { FlashcardInsert } from "@/types";
+import type { DeckCard, DeckPage, FlashcardInsert } from "@/types";
 import { MAX_CANDIDATES } from "@/lib/services/generation";
 
 export const prerender = false;
+
+// Browse the signed-in user's deck (roadmap S-03, FR-012), newest first, in bounded pages so a
+// large deck never ships in one payload. RLS scopes rows to the owner. Paging is keyed by a 0-based
+// ROW offset (not a page index): the client decrements the offset by one per delete so "Load more"
+// stays aligned with the live ordering (see plan F2).
+const PAGE_SIZE = 50;
+
+// 0-based row offset; absent → 0. Reject negatives / non-integers / garbage with an explicit 400.
+const offsetSchema = z.coerce.number().int().nonnegative();
 
 // Authenticated bulk-save: persist accepted candidate cards to the deck as source:'ai' (roadmap S-01).
 // The insert goes through the user's authenticated client, so RLS enforces per-user ownership.
@@ -27,6 +36,43 @@ function json(body: unknown, status: number): Response {
     headers: { "Content-Type": "application/json" },
   });
 }
+
+export const GET: APIRoute = async (context) => {
+  const user = context.locals.user;
+  if (!user) {
+    return json({ error: "Unauthorized" }, 401);
+  }
+
+  // An absent `offset` param coerces to 0 (the first page); negatives / non-integers / garbage 400.
+  const offsetParsed = offsetSchema.safeParse(context.url.searchParams.get("offset"));
+  if (!offsetParsed.success) {
+    return json({ error: "offset must be a non-negative integer" }, 400);
+  }
+  const offset = offsetParsed.data;
+
+  const supabase = createClient(context.request.headers, context.cookies);
+  if (!supabase) {
+    return json({ error: "Persistence is not configured" }, 500);
+  }
+
+  // Fetch PAGE_SIZE + 1 rows (range is inclusive) to derive `hasMore` without a separate count
+  // round-trip. Served by the existing (user_id, created_at desc) index.
+  const { data, error } = await supabase
+    .from("flashcards")
+    .select("id, question, answer, created_at")
+    .order("created_at", { ascending: false })
+    .range(offset, offset + PAGE_SIZE);
+
+  if (error) {
+    return json({ error: "Could not load your cards. Please try again." }, 500);
+  }
+
+  const rows = data as DeckCard[];
+  const hasMore = rows.length > PAGE_SIZE;
+  const cards = hasMore ? rows.slice(0, PAGE_SIZE) : rows;
+
+  return json({ cards, nextOffset: offset + cards.length, hasMore } satisfies DeckPage, 200);
+};
 
 export const POST: APIRoute = async (context) => {
   const user = context.locals.user;
