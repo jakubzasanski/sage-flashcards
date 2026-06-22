@@ -106,8 +106,10 @@ flow, generation, CRUD, or auth.
   once the tokens change (`button.tsx`, `card.tsx`, `textarea.tsx` consume `bg-primary`/
   `bg-card`/`border-input`/`ring-ring`).
 - The mockup's full token system, palette hexes, shadows, logo SVG, and per-component
-  CSS are the source of truth in `design/app-mockup.html` (`:root` at lines 3–31; logo
-  `<symbol>` at lines 250–262; component CSS throughout).
+  CSS are the source of truth in `design/app-mockup.html` (the `:root` token block; the
+  `#sageLeaf` `<symbol>` + `sageGrad` gradient; component CSS throughout). Locate blocks by
+  selector/symbol name, not line number — the mockup is still being extended, so line
+  positions drift.
 - The app is branded "10x Astro Starter" today, so the rename touches only
   `Layout.astro:10`, `Welcome.astro:35`, page `<title>` props, and the new header wordmark.
 - `Topbar.astro` and `Welcome.astro` carry hardcoded dark/cosmic classes that must be
@@ -172,9 +174,9 @@ against the mockup before moving on.
   `--font-mono` as `@theme` keys so Tailwind exposes `font-serif`/`font-sans` utilities;
   studied-content elements opt into `font-serif`, chrome stays default sans.
 - **The answer-unfold is the one motion moment.** Review's reveal animates height +
-  fade (mockup `.answer` / `.answer.show`, lines 204–205). Everything else is quiet.
+  fade (mockup `.answer` / `.answer.show`). Everything else is quiet.
   All transitions must be disabled under `prefers-reduced-motion` (a global rule, as in
-  the mockup line 246).
+  the mockup's global `prefers-reduced-motion` rule).
 - **`prefers-reduced-motion` belongs in `global.css`**, applied globally, so every
   screen inherits it without per-component effort.
 - **Theme toggle must not flash.** The `.dark` class lives on `<html>` and is set
@@ -200,7 +202,15 @@ against the mockup before moving on.
   `context.locals.locale`; `<html lang>` is rendered from it (SSR, so no flash). Astro
   pages read `locals.locale`; React islands receive `locale` (or a built `t`) as a prop —
   islands have no access to `locals`, so the locale must be threaded in at the island
-  boundary. The toggle sets the cookie and reloads (or soft-swaps) so SSR re-renders.
+  boundary. **The toggle sets the cookie and does a full page reload so SSR re-renders with
+  the new locale** — not a client-side soft-swap. Astro doesn't re-render `client:load`
+  islands on the client, and the SSR `<html lang>` + `.astro` chrome (header, banner) only
+  update on a server round-trip anyway, so a reload is the architecturally correct path.
+  **Consequence to accept: a reload discards in-progress island state** — an unsaved
+  in-progress generation (accepted/rejected candidates not yet saved) is the painful case;
+  a mid-review session and an open edit-in-place row also reset. Language switching mid-task
+  is rare, so this is acceptable — but the toggle must reload (no soft-swap that would
+  silently leave islands stale).
   Message catalogs live in `src/i18n/{en,pl}.ts`; `t(key)` is a tiny lookup with an `en`
   fallback. The approved EN/PL strings already exist in the mockup's `I18N` object — port
   them verbatim. Polish plural rules matter (1 / 2–4 / 5+ forms) for count strings — port
@@ -247,7 +257,7 @@ components can reference them.
 `--accent-warm` `#A9C56A`, `--accent-soft` `#EEF3E2`, `--icon` `#8A7550`, `--icon-soft`
 `#B7A582`, rating colors `--r-again`/`--r-hard`/`--r-good`/`--r-easy`
 (`#C75B45`/`#C5872F`/`#4F9A5E`/`#3E938C`), and the three shadows `--shadow-card`/
-`--shadow-lift`/`--shadow-soft` (copy from mockup `:root` lines 24–26). Expose the
+`--shadow-lift`/`--shadow-soft` (copy from the mockup `:root` `--shadow-*` declarations). Expose the
 ones used as Tailwind color utilities via new `--color-*` entries in `@theme inline`.
 
 #### 3. Fonts
@@ -269,7 +279,7 @@ ui-monospace mono). Default body font = sans.
 remove the dark navy cosmic utility.
 
 **Contract**: Replace the `body` base rule to set the radial + linear warm gradient
-(mockup body, lines 40–44) with `background-attachment: fixed`, and keep
+(the mockup `body` background rule) with `background-attachment: fixed`, and keep
 `text-foreground`. **Delete** `@utility bg-cosmic`. **Keep** the `@custom-variant dark`
 line (line 4) — the dark theme depends on it. Add a global
 `@media (prefers-reduced-motion: reduce)` rule disabling transitions/animations.
@@ -337,10 +347,9 @@ plus the shared primitive tweaks (button/card/textarea variants, kbd) the screen
 **Intent**: A single reusable leaf mark, so the gradient + veins are defined once.
 
 **Contract**: Port the mockup's `<g id="sageLeaf">` + `sageGrad` linear gradient
-(lines 253–260) into a self-contained SVG component accepting a `size`/`class` prop.
+into a self-contained SVG component accepting a `size`/`class` prop.
 Provide whichever form (React and/or Astro) the consumers need (header is Astro; auth
-cards may be Astro). Include the soft drop-shadow treatment from `.brand .logo` (mockup
-line 61).
+cards may be Astro). Include the soft drop-shadow treatment from the mockup `.brand .logo`.
 
 #### 2. App shell header
 
@@ -349,7 +358,7 @@ line 61).
 **Intent**: The unified sticky header — brand + leaf + tab nav (Generate/Review/Deck) +
 "New card" + avatar — on all authed app pages, replacing the dark-glass Topbar.
 
-**Contract**: Sticky translucent header (mockup `header`, lines 50–59) with: brand
+**Contract**: Sticky translucent header (mockup `header`) with: brand
 (`SageLeaf` + serif "Sage Flashcards" wordmark linking to Generate — compact "Sage" is
 acceptable if width-constrained, confirm in render-verify), `<nav>` of three tab links to
 `/generate`, `/review`, `/cards` with an `active` state driven by the current path, a
@@ -368,7 +377,7 @@ use `getByRole`-friendly markup (real links/buttons with accessible labels). Del
 authed page stops hand-rolling its own header.
 
 **Contract**: Compose `Layout` (for `<head>`/title) + `AppHeader` + a `<main>` matching
-the mockup (`max-width: 720px; margin: 0 auto`, mockup line 79). Accept a `title` prop
+the mockup (`max-width: 720px; margin: 0 auto`, mockup `main`). Accept a `title` prop
 passed through to `Layout`. Authed pages (`review`, `generate`, `cards/index`,
 `cards/new`, `dashboard`) switch to this wrapper in their respective phases.
 
@@ -380,8 +389,8 @@ passed through to `Layout`. Authed pages (`review`, `generate`, `cards/index`,
 sage-leaf favicon.
 
 **Contract**: Change `Layout.astro:10` default title to `"Sage Flashcards"`; replace the
-favicon with the leaf — add `public/favicon.svg` generated from the `sageLeaf` art
-(mockup lines 253–260) and update the `<link rel="icon">` in `Layout.astro:18` to
+favicon with the leaf — add `public/favicon.svg` generated from the mockup `#sageLeaf`
+art and update the `<link rel="icon">` in `Layout.astro:18` to
 `type="image/svg+xml" href="/favicon.svg"` (keep `favicon.png` as a PNG fallback `<link>`
 or replace it with a leaf PNG). Per-page `<title>` props are updated to read
 "… — Sage Flashcards" (or remain page-specific) as each screen is touched. No
@@ -397,8 +406,8 @@ primary button, serif option for card content, focus ring) and ensure the existi
 
 **Contract**: Confirm `button` primary maps to the green gradient look (via tokens or a
 variant) and the focus-visible ring uses `--ring`/`--accent-deep`. Card stays
-token-driven. Add a `kbd` styling primitive (or shared class) matching the mockup `kbd`
-(lines 106–110). Because dark mode is **kept**, review the components' existing `dark:*`
+token-driven. Add a `kbd` styling primitive (or shared class) matching the mockup `kbd`.
+Because dark mode is **kept**, review the components' existing `dark:*`
 classes (e.g. `textarea.tsx` `dark:bg-input/30`, `button.tsx` destructive/outline
 `dark:` tweaks): keep those that still read correctly against the dark Sage tokens,
 adjust any that don't, and remove only those that are redundant once tokens carry the
@@ -437,7 +446,9 @@ plus the `plPL`/`cardNoun` plural helpers from the mockup. `middleware.ts` reads
 and the layout renders `<html lang={locale}>` (SSR → no flash). Astro pages read
 `locals.locale`; React islands receive `locale` as a prop at their mount boundary.
 `LanguageToggle` is the EN/PL segmented pill in `AppHeader` (and the landing nav) that
-writes the cookie and triggers a re-render (reload or navigation). Convert the shared
+writes the cookie and triggers a **full page reload** (not a client-side swap) so SSR
+re-renders in the new locale — accept that this resets in-progress island state (see the
+i18n note in Critical Implementation Details). Convert the shared
 chrome strings (nav, buttons, the existing hardcoded-Polish config `Banner`) to `t()`.
 
 #### 8. Mobile bottom tab bar + responsive shell
@@ -509,8 +520,8 @@ copy into the warm layout; mount `ReviewSession` in the centered main.
 **Intent**: Restyle the card as a physical study object and all session states to match
 the mockup, preserving every behavior and the keyboard handlers.
 
-**Contract**: Apply the mockup's structure/classes (`design/app-mockup.html` review CSS
-lines 195–227 + the `renderR`/`renderDone` markup lines 504–537):
+**Contract**: Apply the mockup's structure/classes (in `design/app-mockup.html`: the review
+CSS block + the `renderR`/`renderDone` markup):
 - Progress bar (`.progress`/`.bar`/`.bar > i`) replacing "X cards left" text bar.
 - Card with green spine (`.card::before`), serif question, **answer-unfold** on reveal
   (`.answer` → `.answer.show`, height+fade), "Show answer" button with `Space` kbd.
@@ -571,8 +582,8 @@ Restyle the AI generation flow — paste box, candidate review, save bar — and
 bar to the mockup, preserving the generation behavior and the 10,000-char cap.
 
 **Contract**: Apply mockup classes (`.gen-box`, `.area`, `.gen-actions`, `.cand-head`,
-`.cand` w/ `is-accepted`/`is-rejected`, `.chip` accept/reject/edit, `.savebar`; CSS lines
-124–163, markup lines 289–307 + the candidate JS shape lines 432–468):
+`.cand` w/ `is-accepted`/`is-rejected`, `.chip` accept/reject/edit, `.savebar`; the generate
+CSS block, markup, and the candidate JS shape):
 - Paste textarea on warm ground with char counter ("N / 10,000 characters") that warns
   past the cap (existing behavior).
 - Candidate cards with serif Q/A, Keep (green) / Edit / Reject (red) chips, accepted/
@@ -628,8 +639,7 @@ same warm idiom — including empty and edit states.
 preserving CRUD + load-more behavior.
 
 **Contract**: Apply mockup classes (`.deck-tools`, `.row`, `.rq`/`.ra`, `.origin` ai/manual,
-`.iconbtn`/`.iconbtn.danger`, `.empty`; CSS lines 165–193, markup lines 314–323 +
-`mountDeck` lines 479–492):
+`.iconbtn`/`.iconbtn.danger`, `.empty`; the deck CSS block, markup, and `mountDeck`):
 - Rows with serif Q + muted serif A (1-line clamp), counts header ("N cards · M from AI").
 - AI badge (green tint, sparkle) vs Manual badge (soft violet `#F0EAF7`/`#7B5EA8`, pen) —
   driven by existing card origin data.
@@ -691,7 +701,7 @@ derived from the established system since they weren't in the mockups.
 logo, applying the same language across the whole flow.
 
 **Contract**: Apply the mockup auth CSS (`#authView`, `.auth-card`, `.auth-row`,
-`.auth-foot`, `.linkback`; lines 229–240, markup lines 353–373): centered card on warm
+`.auth-foot`, `.linkback`; the auth CSS block + markup): centered card on warm
 ground, `SageLeaf` + serif "Sage Flashcards" wordmark, serif heading, sans sub, warm inputs (token-driven
 via Phase 1/2 primitives), accent-deep links ("Forgot password?", "Create an account").
 Shared `FormField`/`PasswordToggle`/`SubmitButton`/`ServerError` restyled once so all forms
@@ -783,7 +793,11 @@ validation gates, supplemented by per-screen manual render-verify.
 
 - Zero-dependency system fonts → no font network cost or FOUT.
 - `background-attachment: fixed` on the warm gradient is fine for these page sizes;
-  watch for jank only if a very long scroll surface appears (none currently).
+  watch for jank only if a very long scroll surface appears (none currently). **iOS Safari
+  has known quirks with `background-attachment: fixed`** (jump/repaint on scroll, viewport
+  sizing) — verify it on a real iOS device during the mobile render-verify; if it
+  misbehaves, fall back to a non-fixed gradient (`background-attachment: scroll`) on small
+  widths.
 - Removing `bg-cosmic` slightly shrinks the CSS; the dark Sage palette reuses the same
   token names, so it adds only one extra value block plus a small inline init script.
 - The no-flash theme script is inline and tiny (sets one class) — negligible cost, and
@@ -815,16 +829,16 @@ validation gates, supplemented by per-screen manual render-verify.
 
 #### Automated
 
-- [ ] 1.1 Astro types regenerate cleanly: `npx astro sync`
-- [ ] 1.2 Linting passes: `npm run lint`
-- [ ] 1.3 Production build succeeds: `npm run build`
+- [x] 1.1 Astro types regenerate cleanly: `npx astro sync`
+- [x] 1.2 Linting passes: `npm run lint`
+- [x] 1.3 Production build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 1.4 Body shows the warm paper gradient (no white/cosmic background)
-- [ ] 1.5 An existing shadcn button renders green; a card renders on warm surface with cozy radius
-- [ ] 1.6 Adding `class="dark"` to `<html>` flips the same layout to the dark warm palette (no grayscale/off-palette)
-- [ ] 1.7 No console errors about missing CSS custom properties
+- [x] 1.4 Body shows the warm paper gradient (no white/cosmic background)
+- [x] 1.5 An existing shadcn button renders green; a card renders on warm surface with cozy radius
+- [x] 1.6 Adding `class="dark"` to `<html>` flips the same layout to the dark warm palette (no grayscale/off-palette)
+- [x] 1.7 No console errors about missing CSS custom properties
 
 ### Phase 2: App Shell & Shared Primitives
 

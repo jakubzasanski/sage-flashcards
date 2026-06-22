@@ -3,73 +3,119 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Sage visual identity — warm paper ground + a single moss-green accent.
+ * The shadcn semantic tokens below are remapped onto the approved Sage hexes
+ * (source of truth: context/changes/ui-redesign/design/app-mockup.html :root),
+ * so shadcn primitives inherit the warm look automatically.
+ *
+ * NOTE — two `accent` meanings collide: shadcn's `--accent` is a *muted hover
+ * background* (paired with `--accent-foreground`), NOT the bold brand color.
+ * So the bold Sage green is mapped onto `--primary`, and shadcn `--accent` /
+ * `--accent-foreground` are repurposed to the soft green tint / accent-deep.
+ * Do not "fix" this back to a neutral gray.
+ */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 22px;
+
+  /* shadcn semantic tokens → Sage (light) */
+  --background: #f7eee0; /* ground — warm golden paper */
+  --foreground: #2d2922; /* text — warm espresso near-black */
+  --card: #fffdf8; /* surface — warm white */
+  --card-foreground: #2d2922;
+  --popover: #fffdf8;
+  --popover-foreground: #2d2922;
+  --primary: #6ba06a; /* the one bold accent — moss green */
+  --primary-foreground: #ffffff;
+  --secondary: #fffdf8; /* surface */
+  --secondary-foreground: #2d2922;
+  --muted: #efe2cf; /* ground-deep — inset wells / tracks */
+  --muted-foreground: #6b6155; /* text-soft */
+  --accent: #eef3e2; /* repurposed: soft green tint (was muted hover bg) */
+  --accent-foreground: #538152; /* accent-deep */
+  --destructive: #c75b45; /* clay red */
+  --border: #ebdfcd; /* line — hairline on warm surfaces */
+  --input: #ebdfcd;
+  --ring: #538152; /* accent-deep — focus ring */
+
+  /* Sage-specific roles (no shadcn slot) */
+  --ground-deep: #efe2cf; /* gradient bottom / inset wells / progress track */
+  --surface: #fffdf8; /* cards, inputs, panels (warm white) */
+  --text-soft: #6b6155; /* secondary text / answers */
+  --text-faint: #9c8f7e; /* labels, captions */
+  --accent-deep: #538152; /* accent pressed / links / active nav / focus ring */
+  --accent-warm: #a9c56a; /* olive-lime, for gentle gradients (bar, card spine) */
+  --accent-soft: #eef3e2; /* accent tint backgrounds (avatar, AI badge) */
+  --icon: #8a7550; /* dark beige — neutral flat icon color */
+  --icon-soft: #b7a582; /* empty-state icons */
+
+  /* rating semantics (earthy/muted so the green stays the loudest note) */
+  --r-again: #c75b45; /* clay red */
+  --r-hard: #c5872f; /* ochre */
+  --r-good: #4f9a5e; /* leaf */
+  --r-easy: #3e938c; /* teal */
+
+  /* soft, warm, diffuse shadows */
+  --shadow-card: 0 2px 5px rgba(74, 58, 36, 0.05), 0 26px 54px -28px rgba(74, 58, 36, 0.42);
+  --shadow-lift: 0 2px 5px rgba(74, 58, 36, 0.05), 0 36px 74px -30px rgba(74, 58, 36, 0.46);
+  --shadow-soft: 0 1px 3px rgba(74, 58, 36, 0.05), 0 12px 28px -20px rgba(74, 58, 36, 0.4);
 }
 
+/*
+ * Dark Sage — the SAME layout in a darker warm palette (not a redesign).
+ * Identical token names to :root; only values change. The green accent stays
+ * the identity, lifted one step so it pops on dark. Anchor values from the
+ * mockup html.dark block; tune during render-verify.
+ */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* shadcn semantic tokens → Sage (dark) */
+  --background: #211c15; /* warm dark ground */
+  --foreground: #f0e8da; /* warm off-white text */
+  --card: #2a241c; /* elevated warm surface */
+  --card-foreground: #f0e8da;
+  --popover: #2a241c;
+  --popover-foreground: #f0e8da;
+  --primary: #7fb47e; /* green lifted a step so it pops on dark */
+  --primary-foreground: #1b1710;
+  --secondary: #2a241c;
+  --secondary-foreground: #f0e8da;
+  --muted: #191510; /* ground-deep (dark) */
+  --muted-foreground: #b5a892; /* text-soft (dark) */
+  --accent: #26301f; /* dark green-tinted tint surface */
+  --accent-foreground: #6ba06a;
+  --destructive: #d86e57;
+  --border: #3a332a; /* dark hairline */
+  --input: #3a332a;
+  --ring: #6ba06a;
+
+  /* Sage-specific roles (dark) */
+  --ground-deep: #191510;
+  --surface: #2a241c;
+  --text-soft: #b5a892;
+  --text-faint: #8c7f6c;
+  --accent-deep: #6ba06a;
+  --accent-warm: #a9c56a;
+  --accent-soft: #26301f;
+  --icon: #b7a582;
+  --icon-soft: #6e6450;
+
+  /* ratings brightened a step for contrast on dark */
+  --r-again: #d86e57;
+  --r-hard: #d69a45;
+  --r-good: #62b071;
+  --r-easy: #54a89f;
+
+  /* shadows deepen (near-black warm rgba) */
+  --shadow-card: 0 2px 5px rgba(0, 0, 0, 0.3), 0 26px 54px -28px rgba(0, 0, 0, 0.62);
+  --shadow-lift: 0 2px 5px rgba(0, 0, 0, 0.3), 0 36px 74px -30px rgba(0, 0, 0, 0.66);
+  --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.3), 0 12px 28px -20px rgba(0, 0, 0, 0.55);
+}
+
+/* System font stacks (zero dependency, no CDN) exposed as Tailwind utilities. */
+@theme {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
 }
 
 @theme inline {
@@ -95,23 +141,21 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
 
-@utility bg-cosmic {
-  background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
+  /* Sage roles as Tailwind color utilities (bg-surface, text-accent-deep, …) */
+  --color-ground-deep: var(--ground-deep);
+  --color-surface: var(--surface);
+  --color-text-soft: var(--text-soft);
+  --color-text-faint: var(--text-faint);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-warm: var(--accent-warm);
+  --color-accent-soft: var(--accent-soft);
+  --color-icon: var(--icon);
+  --color-icon-soft: var(--icon-soft);
+  --color-r-again: var(--r-again);
+  --color-r-hard: var(--r-hard);
+  --color-r-good: var(--r-good);
+  --color-r-easy: var(--r-easy);
 }
 
 @layer base {
@@ -119,6 +163,26 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #fff7eb 0%, transparent 60%),
+      linear-gradient(180deg, var(--background) 0%, var(--ground-deep) 100%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+  .dark body {
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #2a2318 0%, transparent 60%),
+      linear-gradient(180deg, var(--background) 0%, var(--ground-deep) 100%);
+  }
+
+  /* One motion moment is allowed (Review's answer-unfold); otherwise quiet. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition: none !important;
+      animation: none !important;
+    }
   }
 }

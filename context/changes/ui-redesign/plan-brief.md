@@ -24,8 +24,10 @@ branded "10x Astro Starter" (not "10xCards") in the UI. Navigation is a dark-gla
 ## Desired End State
 
 Every surface renders in the warm Sage language with a unified sticky header + tab nav
-(Generate/Review/Deck), the leaf logo, and "Sage" branding. Dark mode is gone. All
-states — happy path **and** empty/zero-due/loading/error/retry/success — are warm. No
+(Generate/Review/Deck), the leaf logo, and "Sage" branding. A light/dark toggle ships a
+dark warm theme (same layout, darker palette; persists + respects OS) and an EN/PL toggle
+localizes all UI chrome. All states — happy path **and** empty/zero-due/loading/error/
+retry/success — are warm in both themes, both languages, and on mobile + desktop. No
 behavior changes; navigating every route visually matches `app-mockup.html`.
 
 ## Key Decisions Made
