@@ -679,13 +679,13 @@ considering the slice complete.
 
 #### Automated
 
-- [x] 4.1 Handler-property tests pass (`npm test`)
-- [x] 4.2 Lint + build pass (`npm run lint && npm run build`)
-- [x] 4.3 Reset happy-path E2E passes against the production build with local Supabase (`npm run test:e2e`)
-- [x] 4.7 Negative-path E2E: junk `token_hash` on `/auth/reset-password` renders the "invalid or expired" panel
-- [x] 4.4 Existing suites still green (`npm test && npm run test:integration`)
+- [x] 4.1 Handler-property tests pass (`npm test`) — a94f02a
+- [x] 4.2 Lint + build pass (`npm run lint && npm run build`) — a94f02a
+- [x] 4.3 Reset happy-path E2E passes against the production build with local Supabase (`npm run test:e2e`) — a94f02a
+- [x] 4.7 Negative-path E2E: junk `token_hash` on `/auth/reset-password` renders the "invalid or expired" panel — a94f02a
+- [x] 4.4 Existing suites still green (`npm test && npm run test:integration`) — a94f02a
 
 #### Manual
 
-- [x] 4.5 Break-verify: disabling `updateUser` makes the e2e fail at new-password sign-in; revert
-- [x] 4.6 Mailpit link-extraction helper finds the recovery email reliably (run e2e twice, no flakiness)
+- [x] 4.5 Break-verify: disabling `updateUser` makes the e2e fail at new-password sign-in; revert — a94f02a
+- [x] 4.6 Mailpit link-extraction helper finds the recovery email reliably (run e2e twice, no flakiness) — a94f02a
