@@ -388,32 +388,32 @@ the slice complete.
 
 #### Automated
 
-- [x] 1.1 Handler-property tests pass (`npm test`)
-- [x] 1.2 Existing suites still green (`npm test && npm run test:integration`)
-- [x] 1.3 Lint passes (`npm run lint`)
-- [x] 1.4 Build passes (`npm run build`)
-- [x] 1.5 Type checking passes (`npx astro sync && npm run lint`)
+- [x] 1.1 Handler-property tests pass (`npm test`) — d7df881
+- [x] 1.2 Existing suites still green (`npm test && npm run test:integration`) — d7df881
+- [x] 1.3 Lint passes (`npm run lint`) — d7df881
+- [x] 1.4 Build passes (`npm run build`) — d7df881
+- [x] 1.5 Type checking passes (`npx astro sync && npm run lint`) — d7df881
 
 #### Manual
 
-- [x] 1.6 `POST /api/cards/manual` saves a `source:'manual'` row owned by the caller (201)
-- [x] 1.7 A forged `user_id`/`source` in the body is ignored (still a manual row owned by the caller)
-- [x] 1.8 Unauthenticated `POST /api/cards/manual` returns 401
-- [x] 1.9 The new card is immediately due (`due ≈ now()`, `state = 0`) — shows in the dashboard due-count
+- [x] 1.6 `POST /api/cards/manual` saves a `source:'manual'` row owned by the caller (201) — d7df881
+- [x] 1.7 A forged `user_id`/`source` in the body is ignored (still a manual row owned by the caller) — d7df881
+- [x] 1.8 Unauthenticated `POST /api/cards/manual` returns 401 — d7df881
+- [x] 1.9 The new card is immediately due (`due ≈ now()`, `state = 0`) — shows in the dashboard due-count — d7df881
 
 ### Phase 2: Manual-Create UI
 
 #### Automated
 
-- [ ] 2.1 Lint passes (`npm run lint`)
-- [ ] 2.2 Build passes (`npm run build`)
-- [ ] 2.3 Type checking passes (`npx astro sync && npm run lint`)
-- [ ] 2.4 Existing unit + integration suites still green (`npm test && npm run test:integration`)
+- [x] 2.1 Lint passes (`npm run lint`)
+- [x] 2.2 Build passes (`npm run build`)
+- [x] 2.3 Type checking passes (`npx astro sync && npm run lint`)
+- [x] 2.4 Existing unit + integration suites still green (`npm test && npm run test:integration`)
 
 #### Manual
 
-- [ ] 2.5 `/cards/new` renders the form when signed in; unauth visit redirects to `/auth/signin`
-- [ ] 2.6 Adding a question + answer saves the card, shows the confirmation, and clears the form
-- [ ] 2.7 Empty/whitespace-only question or answer keeps "Add card" disabled
-- [ ] 2.8 The new card appears in the dashboard due-count and the next review session
-- [ ] 2.9 A failed save shows an inline error and does not clear the form
+- [x] 2.5 `/cards/new` renders the form when signed in; unauth visit redirects to `/auth/signin`
+- [x] 2.6 Adding a question + answer saves the card, shows the confirmation, and clears the form
+- [x] 2.7 Empty/whitespace-only question or answer keeps "Add card" disabled
+- [x] 2.8 The new card appears in the dashboard due-count and the next review session
+- [x] 2.9 A failed save shows an inline error and does not clear the form
