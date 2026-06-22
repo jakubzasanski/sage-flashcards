@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Check, Loader2, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { t, type Locale } from "@/i18n";
 
 // Manual card authoring (roadmap S-04, FR-011). Captures one question + answer, POSTs to
 // /api/cards/manual (the trust boundary that forces source:'manual' + user_id server-side), surfaces
 // loading/error states, and confirms + clears on success so the user can add another. Mirrors
 // GeneratorView's input/error/loading/confirmation idioms.
 
-export default function ManualCardForm() {
+interface ManualCardFormProps {
+  locale: Locale;
+}
+
+export default function ManualCardForm({ locale }: ManualCardFormProps) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -29,12 +32,12 @@ export default function ManualCardForm() {
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as { error?: string } | null;
-        setError(data?.error ?? "Could not add the card. Please try again.");
+        setError(data?.error ?? t(locale, "new.errAdd"));
         return;
       }
       setSaved(true);
     } catch {
-      setError("Could not reach the server. Please try again.");
+      setError(t(locale, "gen.errNetwork"));
     } finally {
       setIsSaving(false);
     }
@@ -50,57 +53,76 @@ export default function ManualCardForm() {
   // Confirmation state after a successful save.
   if (saved) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/10 p-8 text-center backdrop-blur-xl">
-        <Check className="mx-auto mb-3 size-10 text-emerald-300" />
-        <p className="text-lg font-semibold">Card added to your deck</p>
-        <Button className="mt-6" variant="secondary" onClick={addAnother}>
-          <Plus className="size-4" /> Add another
-        </Button>
+      <div className="done">
+        <div className="seal">
+          <Check aria-hidden="true" />
+        </div>
+        <h2>{t(locale, "new.added")}</h2>
+        <div className="actions">
+          <button type="button" className="btn btn-primary" onClick={addAnother}>
+            <Plus aria-hidden="true" /> {t(locale, "new.addAnother")}
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-      <div className="space-y-1">
-        <label htmlFor="manual-question" className="text-xs font-medium tracking-wide text-blue-100/50 uppercase">
-          Question
-        </label>
-        <Textarea
+    <div className="gen-box">
+      <div className="field">
+        <label htmlFor="manual-question">{t(locale, "field.question")}</label>
+        <textarea
           id="manual-question"
+          className="area"
+          style={{ minHeight: "90px" }}
           value={question}
           onChange={(e) => {
             setQuestion(e.target.value);
           }}
-          placeholder="What do you want to be asked?"
-          className="min-h-24 bg-white/5 text-white"
+          placeholder={t(locale, "new.qPlaceholder")}
           disabled={isSaving}
         />
+        <div className="field-foot">
+          <span />
+          <span>
+            {question.length} {t(locale, "gen.chars")}
+          </span>
+        </div>
       </div>
 
-      <div className="mt-4 space-y-1">
-        <label htmlFor="manual-answer" className="text-xs font-medium tracking-wide text-blue-100/50 uppercase">
-          Answer
-        </label>
-        <Textarea
+      <div className="field">
+        <label htmlFor="manual-answer">{t(locale, "field.answer")}</label>
+        <textarea
           id="manual-answer"
+          className="area"
+          style={{ minHeight: "120px" }}
           value={answer}
           onChange={(e) => {
             setAnswer(e.target.value);
           }}
-          placeholder="The answer to recall."
-          className="min-h-24 bg-white/5 text-white"
+          placeholder={t(locale, "new.aPlaceholder")}
           disabled={isSaving}
         />
+        <div className="field-foot">
+          <span />
+          <span>
+            {answer.length} {t(locale, "gen.chars")}
+          </span>
+        </div>
       </div>
 
-      {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+      {error && <p className="form-error">{error}</p>}
 
-      <Button onClick={handleSave} disabled={!canSave} className="mt-4 w-full">
-        {isSaving ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-        {isSaving ? "Adding..." : "Add card"}
-      </Button>
-      <p className="mt-2 text-center text-xs text-blue-100/40">Adds one card to your deck, immediately reviewable.</p>
+      <div className="savebar-actions" style={{ marginTop: "6px" }}>
+        <button type="button" className="btn btn-primary" onClick={() => void handleSave()} disabled={!canSave}>
+          {isSaving ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Plus aria-hidden="true" />}
+          {isSaving ? t(locale, "new.saving") : t(locale, "new.save")}
+        </button>
+        <a className="btn btn-ghost" href="/cards">
+          {t(locale, "btn.cancel")}
+        </a>
+      </div>
+      <p className="gen-cap">{t(locale, "new.cap")}</p>
     </div>
   );
 }

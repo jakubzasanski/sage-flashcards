@@ -1,23 +1,16 @@
 ---
-import Layout from "@/layouts/Layout.astro";
+import AppLayout from "@/layouts/AppLayout.astro";
 import DeckView from "@/components/deck/DeckView";
+import { t } from "@/i18n";
 
 // Protected by middleware (PROTECTED_ROUTES); unauthenticated users are redirected to /auth/signin.
-const { user } = Astro.locals;
+const { locale } = Astro.locals;
 ---
 
-<Layout title="Your deck">
-  <main class="bg-cosmic min-h-screen px-4 py-10 text-white">
-    <div class="mx-auto w-full max-w-3xl">
-      <header class="mb-8 text-center">
-        <h1 class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-          Your deck
-        </h1>
-        <p class="text-sm text-blue-100/60">Browse, edit, and delete the cards in your deck.</p>
-        <p class="mt-1 text-xs text-blue-100/40">Signed in as {user?.email}</p>
-      </header>
-
-      <DeckView client:load />
-    </div>
-  </main>
-</Layout>
+<AppLayout title="Your deck">
+  <div class="page-head">
+    <h1>{t(locale, "deck.title")}</h1>
+    <p>{t(locale, "deck.sub")}</p>
+  </div>
+  <DeckView locale={locale} client:load />
+</AppLayout>

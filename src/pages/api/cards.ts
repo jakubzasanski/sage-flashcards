@@ -59,7 +59,7 @@ export const GET: APIRoute = async (context) => {
   // round-trip. Served by the existing (user_id, created_at desc) index.
   const { data, error } = await supabase
     .from("flashcards")
-    .select("id, question, answer, created_at")
+    .select("id, question, answer, created_at, source")
     .order("created_at", { ascending: false })
     .range(offset, offset + PAGE_SIZE);
 

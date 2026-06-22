@@ -66,6 +66,7 @@ function deckRows(n: number): DeckCard[] {
     question: `q${i}`,
     answer: `a${i}`,
     created_at: `2026-06-${String((i % 28) + 1).padStart(2, "0")}T00:00:00.000Z`,
+    source: i % 2 === 0 ? "ai" : "manual",
   }));
 }
 

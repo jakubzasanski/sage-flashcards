@@ -877,31 +877,31 @@ validation gates, supplemented by per-screen manual render-verify.
 
 #### Automated
 
-- [x] 4.1 Linting passes: `npm run lint`
-- [x] 4.2 Build succeeds: `npm run build`
+- [x] 4.1 Linting passes: `npm run lint` — a76ae18
+- [x] 4.2 Build succeeds: `npm run build` — a76ae18
 
 #### Manual
 
-- [x] 4.3 Generate screen (paste box, counter, candidate cards, save bar) matches the mockup
-- [x] 4.4 Counter warns past 10,000 chars; accept/reject updates save count; save works
-- [x] 4.5 Success + error states render warm
-- [x] 4.6 Screen renders correctly in both light/dark themes, both languages (EN/PL), and at mobile widths; all chrome via `t()`
-- [x] 4.7 No regression in generation behavior
+- [x] 4.3 Generate screen (paste box, counter, candidate cards, save bar) matches the mockup — a76ae18
+- [x] 4.4 Counter warns past 10,000 chars; accept/reject updates save count; save works — a76ae18
+- [x] 4.5 Success + error states render warm — a76ae18
+- [x] 4.6 Screen renders correctly in both light/dark themes, both languages (EN/PL), and at mobile widths; all chrome via `t()` — a76ae18
+- [x] 4.7 No regression in generation behavior — a76ae18
 
 ### Phase 5: Deck & Manual Create
 
 #### Automated
 
-- [ ] 5.1 Linting passes: `npm run lint`
-- [ ] 5.2 Build succeeds: `npm run build`
+- [x] 5.1 Linting passes: `npm run lint`
+- [x] 5.2 Build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 5.3 Deck rows, AI/Manual badges, beige hover icons, and counts match the mockup
-- [ ] 5.4 Empty deck shows the warm empty state; edit-in-place and delete-confirm work and look warm
-- [ ] 5.5 Manual create form matches the mockup; saving works and shows the warm success state
-- [ ] 5.6 Deck and manual create render correctly in both light/dark themes, both languages (EN/PL), and at mobile widths (actions tappable without hover); all chrome via `t()`
-- [ ] 5.7 No CRUD or load-more regressions
+- [x] 5.3 Deck rows, AI/Manual badges, beige hover icons, and counts match the mockup
+- [x] 5.4 Empty deck shows the warm empty state; edit-in-place and delete-confirm work and look warm
+- [x] 5.5 Manual create form matches the mockup; saving works and shows the warm success state
+- [x] 5.6 Deck and manual create render correctly in both light/dark themes, both languages (EN/PL), and at mobile widths (actions tappable without hover); all chrome via `t()`
+- [x] 5.7 No CRUD or load-more regressions
 
 ### Phase 6: Auth, Landing & Dashboard
 

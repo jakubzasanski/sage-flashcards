@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { AlertCircle, Loader2, Pencil, RefreshCw, Save, Sparkles, Trash2, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import { Layers, Loader2, Pencil, Sparkles, Trash2 } from "lucide-react";
+import { cardNoun, t, type Locale } from "@/i18n";
 import type { DeckCard, DeckPage } from "@/types";
 
 // Roadmap S-03 deck management. Owns the full browse/edit/delete loop against /api/cards and
@@ -18,7 +16,11 @@ interface ActionError {
   message: string;
 }
 
-export default function DeckView() {
+interface DeckViewProps {
+  locale: Locale;
+}
+
+export default function DeckView({ locale }: DeckViewProps) {
   const [status, setStatus] = useState<Status>("loading");
   const [cards, setCards] = useState<DeckCard[]>([]);
   const [nextOffset, setNextOffset] = useState(0);
@@ -72,7 +74,7 @@ export default function DeckView() {
       setNextOffset(data.nextOffset);
       setHasMore(data.hasMore);
     } catch {
-      setLoadMoreError("Could not load more cards. Please try again.");
+      setLoadMoreError(t(locale, "deck.loadMoreError"));
     } finally {
       setLoadingMore(false);
     }
@@ -108,7 +110,7 @@ export default function DeckView() {
       setEditingId(null);
     } catch {
       // Keep edit mode open so the user's edits aren't lost (no silent drop).
-      setActionError({ id, message: "Could not save the card. Please try again." });
+      setActionError({ id, message: t(locale, "deck.saveError") });
     } finally {
       setSavingId(null);
     }
@@ -126,7 +128,7 @@ export default function DeckView() {
       setNextOffset((prev) => Math.max(0, prev - 1));
       setConfirmingDeleteId(null);
     } catch {
-      setActionError({ id, message: "Could not delete the card. Please try again." });
+      setActionError({ id, message: t(locale, "deck.deleteError") });
     } finally {
       setDeletingId(null);
     }
@@ -134,168 +136,174 @@ export default function DeckView() {
 
   if (status === "loading") {
     return (
-      <div className="flex justify-center py-16 text-blue-100/70">
-        <Loader2 className="size-6 animate-spin" />
+      <div className="review-loading" aria-busy="true">
+        <Loader2 aria-hidden="true" />
       </div>
     );
   }
 
   if (status === "error") {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/10 p-8 text-center backdrop-blur-xl">
-        <AlertCircle className="mx-auto mb-3 size-8 text-red-300" />
-        <p className="text-blue-100/80">Could not load your deck.</p>
-        <Button className="mt-6" variant="secondary" onClick={() => void loadInitial()}>
-          <RefreshCw className="size-4" /> Try again
-        </Button>
+      <div className="empty">
+        <p>{t(locale, "deck.loadError")}</p>
+        <button type="button" className="btn btn-primary" onClick={() => void loadInitial()}>
+          {t(locale, "deck.tryAgain")}
+        </button>
       </div>
     );
   }
 
   if (cards.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/10 p-8 text-center backdrop-blur-xl">
-        <p className="text-lg font-semibold">No cards yet</p>
-        <p className="mt-1 text-sm text-blue-100/60">Generate your first cards to start building your deck.</p>
-        <a
-          href="/generate"
-          className="mt-6 inline-flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-        >
-          <Sparkles className="size-4" /> Generate flashcards
+      <div className="empty">
+        <div className="ico">
+          <Layers aria-hidden="true" />
+        </div>
+        <h2>{t(locale, "deck.empty")}</h2>
+        <p>{t(locale, "deck.emptySub")}</p>
+        <a className="btn btn-primary" href="/generate">
+          <Sparkles aria-hidden="true" /> {t(locale, "deck.genCta")}
         </a>
       </div>
     );
   }
 
+  const aiCount = cards.filter((c) => c.source === "ai").length;
+  const totalText =
+    locale === "pl"
+      ? `${cards.length} ${cardNoun(locale, cards.length)} · ${aiCount} od AI`
+      : `${cards.length} ${cardNoun(locale, cards.length)} · ${aiCount} from AI`;
+
   return (
-    <div className="space-y-4">
+    <div>
+      <div className="deck-tools">
+        <span className="total">{totalText}</span>
+      </div>
+
       {cards.map((card) => {
         const isEditing = editingId === card.id;
         const isConfirmingDelete = confirmingDeleteId === card.id;
         const error = actionError?.id === card.id ? actionError.message : null;
+        const isAi = card.source !== "manual";
+
+        if (isEditing) {
+          return (
+            <div key={card.id} className="row editing">
+              <textarea
+                className="area"
+                value={draft.question}
+                aria-label={t(locale, "field.question")}
+                onChange={(e) => {
+                  setDraft((d) => ({ ...d, question: e.target.value }));
+                }}
+              />
+              <textarea
+                className="area"
+                value={draft.answer}
+                aria-label={t(locale, "field.answer")}
+                onChange={(e) => {
+                  setDraft((d) => ({ ...d, answer: e.target.value }));
+                }}
+              />
+              {error && <p className="form-error">{error}</p>}
+              <div className="acts confirm">
+                <button type="button" className="btn btn-ghost" onClick={cancelEdit} disabled={savingId === card.id}>
+                  {t(locale, "btn.cancel")}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => void saveEdit(card.id)}
+                  disabled={!draft.question.trim() || !draft.answer.trim() || savingId === card.id}
+                >
+                  {savingId === card.id && <Loader2 className="animate-spin" aria-hidden="true" />}
+                  {t(locale, "deck.save")}
+                </button>
+              </div>
+            </div>
+          );
+        }
 
         return (
-          <Card key={card.id} className="border-white/10 bg-white/10">
-            <CardContent className="space-y-3 p-4">
-              {isEditing ? (
-                <>
-                  <div className="space-y-1">
-                    <span className="text-xs font-medium tracking-wide text-blue-100/50 uppercase">Question</span>
-                    <Textarea
-                      value={draft.question}
-                      onChange={(e) => {
-                        setDraft((d) => ({ ...d, question: e.target.value }));
-                      }}
-                      className="min-h-0 resize-none bg-white/5 text-white"
-                      rows={2}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-xs font-medium tracking-wide text-blue-100/50 uppercase">Answer</span>
-                    <Textarea
-                      value={draft.answer}
-                      onChange={(e) => {
-                        setDraft((d) => ({ ...d, answer: e.target.value }));
-                      }}
-                      className="min-h-0 resize-none bg-white/5 text-white"
-                      rows={2}
-                    />
-                  </div>
-                  {error && <p className="text-sm text-red-300">{error}</p>}
-                  <div className="flex justify-end gap-2">
-                    <Button size="sm" variant="ghost" onClick={cancelEdit} disabled={savingId === card.id}>
-                      <X className="size-4" /> Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => void saveEdit(card.id)}
-                      disabled={!draft.question.trim() || !draft.answer.trim() || savingId === card.id}
-                    >
-                      {savingId === card.id ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-                      Save
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-1">
-                    <span className="text-xs font-medium tracking-wide text-blue-100/50 uppercase">Question</span>
-                    <p className="text-white">{card.question}</p>
-                  </div>
-                  <div className="space-y-1 border-t border-white/10 pt-3">
-                    <span className="text-xs font-medium tracking-wide text-blue-100/50 uppercase">Answer</span>
-                    <p className="text-white">{card.answer}</p>
-                  </div>
-                  {error && <p className="text-sm text-red-300">{error}</p>}
-                  <div className="flex justify-end gap-2">
-                    {isConfirmingDelete ? (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            setConfirmingDeleteId(null);
-                          }}
-                          disabled={deletingId === card.id}
-                        >
-                          <X className="size-4" /> Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-red-200 hover:text-red-100"
-                          onClick={() => void confirmDelete(card.id)}
-                          // Don't fire a delete while a page fetch is in flight: loadMore sets
-                          // nextOffset absolutely and would clobber the delete's cursor decrement.
-                          disabled={deletingId === card.id || loadingMore}
-                        >
-                          {deletingId === card.id ? (
-                            <Loader2 className="size-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="size-4" />
-                          )}
-                          Confirm delete
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            startEdit(card);
-                          }}
-                        >
-                          <Pencil className="size-4" /> Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-red-200 hover:text-red-100"
-                          onClick={() => {
-                            setActionError(null);
-                            setConfirmingDeleteId(card.id);
-                          }}
-                        >
-                          <Trash2 className="size-4" /> Delete
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
+          <div key={card.id} className="row">
+            <div className="body">
+              <p className="rq">{card.question}</p>
+              <p className="ra">{card.answer}</p>
+              {error && <p className="form-error">{error}</p>}
+            </div>
+            <span className={isAi ? "origin ai" : "origin manual"}>
+              {isAi ? <Sparkles aria-hidden="true" /> : <Pencil aria-hidden="true" />}
+              {isAi ? t(locale, "deck.ai") : t(locale, "deck.manual")}
+            </span>
+            {isConfirmingDelete ? (
+              <div className="acts confirm">
+                <button
+                  type="button"
+                  className="chip"
+                  onClick={() => {
+                    setConfirmingDeleteId(null);
+                  }}
+                  disabled={deletingId === card.id}
+                >
+                  {t(locale, "btn.cancel")}
+                </button>
+                <button
+                  type="button"
+                  className="chip reject on"
+                  onClick={() => void confirmDelete(card.id)}
+                  // Don't fire a delete while a page fetch is in flight: loadMore sets nextOffset
+                  // absolutely and would clobber the delete's cursor decrement.
+                  disabled={deletingId === card.id || loadingMore}
+                >
+                  {deletingId === card.id ? (
+                    <Loader2 className="animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Trash2 aria-hidden="true" />
+                  )}
+                  {t(locale, "deck.confirmDelete")}
+                </button>
+              </div>
+            ) : (
+              <div className="acts">
+                <button
+                  type="button"
+                  className="iconbtn"
+                  title={t(locale, "deck.edit")}
+                  onClick={() => {
+                    startEdit(card);
+                  }}
+                >
+                  <Pencil aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className="iconbtn danger"
+                  title={t(locale, "deck.delete")}
+                  onClick={() => {
+                    setActionError(null);
+                    setConfirmingDeleteId(card.id);
+                  }}
+                >
+                  <Trash2 aria-hidden="true" />
+                </button>
+              </div>
+            )}
+          </div>
         );
       })}
 
       {hasMore && (
-        <div className="flex flex-col items-center gap-2 pt-2">
-          <Button variant="secondary" onClick={() => void loadMore()} disabled={loadingMore || deletingId !== null}>
-            {loadingMore ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
-            Load more
-          </Button>
-          {loadMoreError && <p className="text-sm text-red-300">{loadMoreError}</p>}
+        <div className="load-more">
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => void loadMore()}
+            disabled={loadingMore || deletingId !== null}
+          >
+            {loadingMore && <Loader2 className="animate-spin" aria-hidden="true" />}
+            {t(locale, "deck.loadMore")}
+          </button>
+          {loadMoreError && <p className="form-error">{loadMoreError}</p>}
         </div>
       )}
     </div>
