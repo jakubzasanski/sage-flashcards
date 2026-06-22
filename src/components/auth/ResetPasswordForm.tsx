@@ -4,14 +4,16 @@ import { FormField } from "@/components/auth/FormField";
 import { PasswordToggle } from "@/components/auth/PasswordToggle";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
+import { t, type Locale } from "@/i18n";
 
 const MIN_PASSWORD_LENGTH = 8;
 
 interface Props {
   serverError?: string | null;
+  locale: Locale;
 }
 
-export default function ResetPasswordForm({ serverError }: Props) {
+export default function ResetPasswordForm({ serverError, locale }: Props) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,15 +24,15 @@ export default function ResetPasswordForm({ serverError }: Props) {
     const next: typeof errors = {};
 
     if (!password) {
-      next.password = "Password is required";
+      next.password = t(locale, "auth.vPwReq");
     } else if (password.length < MIN_PASSWORD_LENGTH) {
-      next.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`;
+      next.password = t(locale, "auth.vPwMin");
     }
 
     if (!confirmPassword) {
-      next.confirmPassword = "Please confirm your password";
+      next.confirmPassword = t(locale, "auth.vConfirmReq");
     } else if (password !== confirmPassword) {
-      next.confirmPassword = "Passwords do not match";
+      next.confirmPassword = t(locale, "auth.vPwMismatch");
     }
 
     setErrors(next);
@@ -47,11 +49,13 @@ export default function ResetPasswordForm({ serverError }: Props) {
     }
   }
 
+  const remaining = MIN_PASSWORD_LENGTH - password.length;
   const passwordHint =
-    !errors.password && password.length > 0 && password.length < MIN_PASSWORD_LENGTH ? (
-      <p className="mt-1 text-xs text-blue-100/50">
-        {MIN_PASSWORD_LENGTH - password.length} more character
-        {MIN_PASSWORD_LENGTH - password.length !== 1 ? "s" : ""} needed
+    !errors.password && password.length > 0 && remaining > 0 ? (
+      <p className="text-text-faint mt-1.5 text-xs">
+        {locale === "pl"
+          ? `Jeszcze ${remaining} znaków`
+          : `${remaining} more character${remaining !== 1 ? "s" : ""} needed`}
       </p>
     ) : undefined;
 
@@ -59,14 +63,14 @@ export default function ResetPasswordForm({ serverError }: Props) {
     <form method="POST" action="/api/auth/reset-password" className="space-y-4" onSubmit={handleSubmit} noValidate>
       <FormField
         id="password"
-        label="New password"
+        label={t(locale, "auth.lNewPw")}
         type={showPassword ? "text" : "password"}
         value={password}
         onChange={(v) => {
           setPassword(v);
           clearError("password");
         }}
-        placeholder="Min. 8 characters"
+        placeholder={t(locale, "auth.phMin")}
         error={errors.password}
         hint={passwordHint}
         icon={<Lock className="size-4" />}
@@ -83,14 +87,14 @@ export default function ResetPasswordForm({ serverError }: Props) {
       <FormField
         id="confirmPassword"
         name="confirmPassword"
-        label="Confirm new password"
+        label={t(locale, "auth.lConfirmNew")}
         type={showConfirmPassword ? "text" : "password"}
         value={confirmPassword}
         onChange={(v) => {
           setConfirmPassword(v);
           clearError("confirmPassword");
         }}
-        placeholder="Re-enter your new password"
+        placeholder={t(locale, "auth.phReenterNew")}
         error={errors.confirmPassword}
         icon={<Lock className="size-4" />}
         endContent={
@@ -105,8 +109,8 @@ export default function ResetPasswordForm({ serverError }: Props) {
 
       <ServerError message={serverError} />
 
-      <SubmitButton pendingText="Updating password..." icon={<KeyRound className="size-4" />}>
-        Update password
+      <SubmitButton pendingText={t(locale, "auth.updatingPw")} icon={<KeyRound className="size-4" />}>
+        {t(locale, "auth.updatePw")}
       </SubmitButton>
     </form>
   );

@@ -1,8 +1,9 @@
 ---
 import AppLayout from "@/layouts/AppLayout.astro";
 import { createClient } from "@/lib/supabase";
+import { cardNoun, t } from "@/i18n";
 
-const { user } = Astro.locals;
+const { user, locale } = Astro.locals;
 
 // Count cards due for review now (due <= now), RLS-scoped to the signed-in user, to drive the
 // review entry point. head:true fetches only the count, not the rows.
@@ -15,40 +16,56 @@ if (supabase) {
     .lte("due", new Date().toISOString());
   dueCount = count ?? 0;
 }
+
+const reviewText =
+  locale === "pl"
+    ? `Powtórz ${dueCount} ${cardNoun(locale, dueCount, true)}`
+    : `Review ${dueCount} ${cardNoun(locale, dueCount)} due`;
 ---
 
 <AppLayout title="Dashboard">
   <div class="page-head">
-    <h1>Dashboard</h1>
-    <p>Welcome, {user?.email}</p>
+    <h1>{t(locale, "dash.title")}</h1>
+    <p>{user?.email}</p>
   </div>
 
-  <div class="dash-actions">
+  <div class="dash-card">
     {
       dueCount > 0 ? (
         <a class="btn btn-primary" href="/review">
-          Review {dueCount} {dueCount === 1 ? "card" : "cards"} due
+          {reviewText}
         </a>
       ) : (
-        <p class="dash-empty">No cards due for review right now.</p>
+        <p class="dash-empty">{t(locale, "dash.noDue")}</p>
       )
     }
-    <a class="btn btn-ghost" href="/cards">Browse your deck</a>
-    <a class="btn btn-ghost" href="/cards/new">Add a card manually</a>
-    <a class="btn btn-ghost" href="/generate">Generate flashcards</a>
+  </div>
+
+  <div class="dash-actions">
+    <a class="btn btn-ghost" href="/cards">{t(locale, "dash.browse")}</a>
+    <a class="btn btn-ghost" href="/cards/new">{t(locale, "dash.addManual")}</a>
+    <a class="btn btn-ghost" href="/generate">{t(locale, "deck.genCta")}</a>
   </div>
 </AppLayout>
 
 <style>
-  .dash-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .dash-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    padding: clamp(22px, 4vw, 30px);
+    text-align: center;
+    margin-bottom: 18px;
   }
   .dash-empty {
     color: var(--text-soft);
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 0.98rem;
+  }
+  .dash-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 </style>

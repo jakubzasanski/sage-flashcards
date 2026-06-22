@@ -1174,6 +1174,207 @@
     padding-top: 8px;
   }
 
+  /* ---------- auth ---------- */
+  .auth-wrap {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 40px 20px;
+  }
+  .auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    padding: clamp(28px, 5vw, 38px);
+  }
+  .auth-card .brand {
+    justify-content: center;
+    margin-bottom: 22px;
+    cursor: default;
+  }
+  .auth-card h1 {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 0 4px;
+  }
+  .auth-card .sub {
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+    margin: 0 0 26px;
+  }
+  .auth-row {
+    display: flex;
+    justify-content: flex-end;
+    margin: -8px 0 18px;
+  }
+  .auth-row a,
+  .auth-foot a,
+  .linkback {
+    color: var(--accent-deep);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.86rem;
+  }
+  .auth-row a:hover,
+  .auth-foot a:hover,
+  .linkback:hover {
+    text-decoration: underline;
+  }
+  .auth-foot {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 0.9rem;
+    color: var(--text-soft);
+  }
+  .linkback {
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 0.85rem;
+  }
+  .auth-emoji {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+
+  /* ---------- landing (pre-login) ---------- */
+  .landing-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px clamp(20px, 5vw, 48px);
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .landing-nav .top-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(48px, 9vh, 110px) 20px 40px;
+    text-align: center;
+  }
+  .hero .leaf-xl {
+    filter: drop-shadow(0 8px 16px rgba(83, 129, 82, 0.34));
+    margin: 0 auto 22px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+  }
+  .hero h1 .accent {
+    color: var(--accent-deep);
+  }
+  .hero p.lede {
+    font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+    color: var(--text-soft);
+    line-height: 1.55;
+    margin: 0 auto 30px;
+    max-width: 560px;
+  }
+  .hero .cta {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero .btn-primary,
+  .hero .btn-ghost {
+    padding: 14px 26px;
+    font-size: 1rem;
+  }
+  .hero .reassure {
+    margin-top: 16px;
+    font-size: 0.82rem;
+    color: var(--text-faint);
+  }
+  .how {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 30px 20px 40px;
+  }
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    padding: 26px 22px;
+    text-align: left;
+  }
+  .step .ico {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    margin-bottom: 14px;
+  }
+  .step .ico svg {
+    width: 22px;
+    height: 22px;
+  }
+  .step .n {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .step h3 {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 4px 0 7px;
+  }
+  .step p {
+    color: var(--text-soft);
+    margin: 0;
+    font-size: 0.94rem;
+    line-height: 1.5;
+  }
+  .closing {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 20px 20px 90px;
+  }
+  .closing-card {
+    background: linear-gradient(150deg, var(--accent-soft), var(--surface));
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    padding: clamp(30px, 5vw, 46px);
+    text-align: center;
+  }
+  .closing-card h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.5rem, 3.4vw, 2rem);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .closing-card p {
+    color: var(--text-soft);
+    margin: 0 0 22px;
+  }
+
   /* focus rings in accent green across chrome (mockup) */
   a:focus-visible,
   button:focus-visible,

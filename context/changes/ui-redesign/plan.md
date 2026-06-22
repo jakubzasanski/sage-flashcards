@@ -892,29 +892,29 @@ validation gates, supplemented by per-screen manual render-verify.
 
 #### Automated
 
-- [x] 5.1 Linting passes: `npm run lint`
-- [x] 5.2 Build succeeds: `npm run build`
+- [x] 5.1 Linting passes: `npm run lint` — 96b8880
+- [x] 5.2 Build succeeds: `npm run build` — 96b8880
 
 #### Manual
 
-- [x] 5.3 Deck rows, AI/Manual badges, beige hover icons, and counts match the mockup
-- [x] 5.4 Empty deck shows the warm empty state; edit-in-place and delete-confirm work and look warm
-- [x] 5.5 Manual create form matches the mockup; saving works and shows the warm success state
-- [x] 5.6 Deck and manual create render correctly in both light/dark themes, both languages (EN/PL), and at mobile widths (actions tappable without hover); all chrome via `t()`
-- [x] 5.7 No CRUD or load-more regressions
+- [x] 5.3 Deck rows, AI/Manual badges, beige hover icons, and counts match the mockup — 96b8880
+- [x] 5.4 Empty deck shows the warm empty state; edit-in-place and delete-confirm work and look warm — 96b8880
+- [x] 5.5 Manual create form matches the mockup; saving works and shows the warm success state — 96b8880
+- [x] 5.6 Deck and manual create render correctly in both light/dark themes, both languages (EN/PL), and at mobile widths (actions tappable without hover); all chrome via `t()` — 96b8880
+- [x] 5.7 No CRUD or load-more regressions — 96b8880
 
 ### Phase 6: Auth, Landing & Dashboard
 
 #### Automated
 
-- [ ] 6.1 Linting passes: `npm run lint`
-- [ ] 6.2 Build succeeds: `npm run build`
-- [ ] 6.3 No remaining cosmic utility usage in `src`
+- [x] 6.1 Linting passes: `npm run lint`
+- [x] 6.2 Build succeeds: `npm run build`
+- [x] 6.3 No remaining cosmic utility usage in `src`
 
 #### Manual
 
-- [ ] 6.4 Sign-in matches the mockup; all auth flows share the warm language and still work
-- [ ] 6.5 Landing renders warm (no cosmic), reads "Sage Flashcards," links work
-- [ ] 6.6 Dashboard renders warm via the app shell
-- [ ] 6.7 Landing/auth/dashboard render correctly in both light/dark themes, both languages (EN/PL), and on mobile (stacked hero, full-width CTAs, single-column how-it-works)
-- [ ] 6.8 Full route walkthrough shows a cohesive Sage Flashcards app in both themes, both languages, and on mobile + desktop, with no grayscale/cosmic remnants, no untranslated UI strings, and no horizontal scroll
+- [x] 6.4 Sign-in matches the mockup; all auth flows share the warm language and still work
+- [x] 6.5 Landing renders warm (no cosmic), reads "Sage Flashcards," links work
+- [x] 6.6 Dashboard renders warm via the app shell
+- [x] 6.7 Landing/auth/dashboard render correctly in both light/dark themes, both languages (EN/PL), and on mobile (stacked hero, full-width CTAs, single-column how-it-works)
+- [x] 6.8 Full route walkthrough shows a cohesive Sage Flashcards app in both themes, both languages, and on mobile + desktop, with no grayscale/cosmic remnants, no untranslated UI strings, and no horizontal scroll
