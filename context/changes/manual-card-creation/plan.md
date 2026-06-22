@@ -405,15 +405,15 @@ the slice complete.
 
 #### Automated
 
-- [x] 2.1 Lint passes (`npm run lint`)
-- [x] 2.2 Build passes (`npm run build`)
-- [x] 2.3 Type checking passes (`npx astro sync && npm run lint`)
-- [x] 2.4 Existing unit + integration suites still green (`npm test && npm run test:integration`)
+- [x] 2.1 Lint passes (`npm run lint`) — d121c2f
+- [x] 2.2 Build passes (`npm run build`) — d121c2f
+- [x] 2.3 Type checking passes (`npx astro sync && npm run lint`) — d121c2f
+- [x] 2.4 Existing unit + integration suites still green (`npm test && npm run test:integration`) — d121c2f
 
 #### Manual
 
-- [x] 2.5 `/cards/new` renders the form when signed in; unauth visit redirects to `/auth/signin`
-- [x] 2.6 Adding a question + answer saves the card, shows the confirmation, and clears the form
-- [x] 2.7 Empty/whitespace-only question or answer keeps "Add card" disabled
-- [x] 2.8 The new card appears in the dashboard due-count and the next review session
-- [x] 2.9 A failed save shows an inline error and does not clear the form
+- [x] 2.5 `/cards/new` renders the form when signed in; unauth visit redirects to `/auth/signin` — d121c2f
+- [x] 2.6 Adding a question + answer saves the card, shows the confirmation, and clears the form — d121c2f
+- [x] 2.7 Empty/whitespace-only question or answer keeps "Add card" disabled — d121c2f
+- [x] 2.8 The new card appears in the dashboard due-count and the next review session — d121c2f
+- [x] 2.9 A failed save shows an inline error and does not clear the form — d121c2f

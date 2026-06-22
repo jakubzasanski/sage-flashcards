@@ -1,7 +1,7 @@
 ---
 change_id: manual-card-creation
 title: Manual card creation
-status: implementing
+status: implemented
 created: 2026-06-21
 updated: 2026-06-22
 archived_at: null
