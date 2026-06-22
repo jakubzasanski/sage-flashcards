@@ -3,7 +3,7 @@ project: 10xCards
 version: 1
 status: draft
 created: 2026-06-19
-updated: 2026-06-21
+updated: 2026-06-22
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -32,9 +32,9 @@ top_blocker: time
 | F-01  | card-persistence-foundation  | (foundation) user-owned cards persist with RLS + origin tracking | —             | Access Control; No-data-loss | done     |
 | S-01  | first-ai-cards-to-deck       | paste text → accept AI cards → save to deck                       | F-01          | US-01, FR-008, FR-009, FR-010 | done     |
 | S-02  | spaced-repetition-review     | run a keyboard-driven spaced-repetition review session           | F-01, S-01    | US-02, FR-015, FR-016     | done     |
-| S-03  | deck-management              | browse, edit (schedule-preserving), and delete cards             | F-01          | FR-012, FR-013, FR-014    | proposed |
-| S-04  | manual-card-creation         | create a flashcard manually (question + answer)                  | F-01          | FR-011                    | proposed |
-| S-05  | account-access-recovery      | reset a forgotten password; auth flows meet PRD criteria         | —             | FR-003, FR-004, FR-005, FR-006, FR-007 | ready    |
+| S-03  | deck-management              | browse, edit (schedule-preserving), and delete cards             | F-01          | FR-012, FR-013, FR-014    | done     |
+| S-04  | manual-card-creation         | create a flashcard manually (question + answer)                  | F-01          | FR-011                    | done     |
+| S-05  | account-access-recovery      | reset a forgotten password; auth flows meet PRD criteria         | —             | FR-003, FR-004, FR-005, FR-006, FR-007 | planned  |
 | S-06  | anonymous-trial-and-claim    | generate cards with no account; claim them on sign-up            | F-01, S-01    | FR-001, FR-002            | blocked  |
 
 ## Streams
@@ -114,7 +114,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Pure CRUD over the F-01 entity; low risk. Schedule-preserving edit (FR-013) must not touch the columns S-02 adds — coordinate if S-02 and S-03 land out of order. No search/filter (PRD non-goal) keeps scope tight under `speed`.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Manual card creation
 
@@ -126,7 +126,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Smallest card-creation path; independent of the AI generation slice. The manual-origin write feeds the "75% via AI" metric's denominator, so it shares F-01's origin flag.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: Account access — complete & recoverable
 
@@ -138,7 +138,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Net-new work is password reset (FR-006, absent today); the rest is verifying baseline auth against PRD criteria. Reset rides Supabase's existing email path (confirmation emails already work in production), so no new email infrastructure is needed — keeping it a small, independent slice. Without FR-006 the "no data loss" guardrail is hollow (a forgotten password = a lost deck), so it stays must-have even under `speed`.
-- **Status:** ready
+- **Status:** planned
 
 ### S-06: Anonymous-trial generation + claim-on-signup
 
@@ -160,9 +160,9 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-01       | card-persistence-foundation | Cards table with per-user RLS and origin tracking      | yes                   | Foundation; unlocks the north star. Run `/10x-plan card-persistence-foundation` |
 | S-01       | first-ai-cards-to-deck      | Generate AI cards from pasted text and save to deck    | no                    | North star; ready once F-01 is done. Pick LLM provider in plan. |
 | S-02       | spaced-repetition-review    | Keyboard-driven spaced-repetition review session       | no                    | Needs F-01 + S-01. Pick SRS library in plan. |
-| S-03       | deck-management             | Browse, edit, and delete deck cards                    | no                    | Needs F-01. |
-| S-04       | manual-card-creation        | Create a flashcard manually                            | no                    | Needs F-01. |
-| S-05       | account-access-recovery     | Password reset + auth acceptance-criteria verification | yes                   | No prerequisites; auth baseline already live. Run `/10x-plan account-access-recovery` |
+| S-03       | deck-management             | Browse, edit, and delete deck cards                    | planned               | Needs F-01 (done). Plan written → run `/10x-implement deck-management`. |
+| S-04       | manual-card-creation        | Create a flashcard manually                            | planned               | Needs F-01 (done). Plan written → run `/10x-implement manual-card-creation`. |
+| S-05       | account-access-recovery     | Password reset + auth acceptance-criteria verification | planned               | No prerequisites; auth baseline already live. Plan written → run `/10x-implement account-access-recovery`. |
 | S-06       | anonymous-trial-and-claim   | Anonymous trial generation + claim on sign-up          | no                    | Blocked by Open Question #1 (scope-vs-timeline). |
 
 ## Open Roadmap Questions
@@ -186,3 +186,5 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **S-02: user can start a review session where an off-the-shelf scheduler picks due-card order, reveal each answer, rate recall on a four-level scale (Again/Hard/Good/Easy) with the schedule updating after each rating, and resume mid-session after navigation/refresh/network loss without losing progress — fully keyboard-driven.** — Archived 2026-06-21 → `context/archive/2026-06-21-spaced-repetition-review/`. Lesson: —.
 - **F-01: (foundation) user-owned flashcards persist — a cards table with per-user row-level security and an AI-vs-manual origin flag; the first migration and the project's RLS pattern are established.** — Archived 2026-06-21 → `context/archive/2026-06-19-card-persistence-foundation/`. Lesson: —.
 - **S-01: paste text → accept AI cards → save to deck** — Archived 2026-06-21 → `context/archive/2026-06-19-first-ai-cards-to-deck/`. Lesson: —.
+- **S-03: user can browse all cards in their deck via pagination/virtualized scroll, edit any card's question/answer without resetting its review schedule, and delete a card behind an explicit confirmation prompt (permanent, no restore).** — Archived 2026-06-22 → `context/archive/2026-06-21-deck-management/`. Lesson: —.
+- **S-04: user can create a flashcard manually by entering a question and an answer, saved to their deck with manual origin.** — Archived 2026-06-22 → `context/archive/2026-06-21-manual-card-creation/`. Lesson: —.
