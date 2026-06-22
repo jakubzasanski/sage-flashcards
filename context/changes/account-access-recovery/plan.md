@@ -663,29 +663,29 @@ considering the slice complete.
 
 #### Automated
 
-- [x] 3.1 Lint + build still pass (`npm run lint && npm run build`)
-- [x] 3.2 `config.toml` applies cleanly (`npx supabase db reset` / stop+start), no `[auth]` parse error
-- [x] 3.8 `additional_redirect_urls` includes the local e2e/preview origin (`http://localhost:4321`); recovery link resolves to the running app, not the `site_url` fallback
-- [x] 3.3 Existing unit + integration suites still green (`npm test && npm run test:integration`)
+- [x] 3.1 Lint + build still pass (`npm run lint && npm run build`) — 507f5d0
+- [x] 3.2 `config.toml` applies cleanly (`npx supabase db reset` / stop+start), no `[auth]` parse error — 507f5d0
+- [x] 3.8 `additional_redirect_urls` includes the local e2e/preview origin (`http://localhost:4321`); recovery link resolves to the running app, not the `site_url` fallback — 507f5d0
+- [x] 3.3 Existing unit + integration suites still green (`npm test && npm run test:integration`) — 507f5d0
 
 #### Manual
 
-- [x] 3.4 FR-003: fresh-email signup creates an account (dev confirm-email "can now sign in")
-- [x] 3.5 FR-004 (prod): with confirmations ON, unconfirmed account can't sign in until link clicked
-- [x] 3.6 FR-005: session persists; prod refresh-token lifetime confirmed ≥7 days; silent refresh after 1h works
-- [x] 3.7 FR-007: sign-out redirects to `/`, clears session; `/dashboard` then redirects to `/auth/signin`
+- [x] 3.4 FR-003: fresh-email signup creates an account (dev confirm-email "can now sign in") — 507f5d0
+- [x] 3.5 FR-004 (prod): with confirmations ON, unconfirmed account can't sign in until link clicked — 507f5d0
+- [x] 3.6 FR-005: session persists; prod refresh-token lifetime confirmed ≥7 days; silent refresh after 1h works — 507f5d0
+- [x] 3.7 FR-007: sign-out redirects to `/`, clears session; `/dashboard` then redirects to `/auth/signin` — 507f5d0
 
 ### Phase 4: Tests — Handler Validation + Reset Happy-Path E2E
 
 #### Automated
 
-- [ ] 4.1 Handler-property tests pass (`npm test`)
-- [ ] 4.2 Lint + build pass (`npm run lint && npm run build`)
-- [ ] 4.3 Reset happy-path E2E passes against the production build with local Supabase (`npm run test:e2e`)
-- [ ] 4.7 Negative-path E2E: junk `token_hash` on `/auth/reset-password` renders the "invalid or expired" panel
-- [ ] 4.4 Existing suites still green (`npm test && npm run test:integration`)
+- [x] 4.1 Handler-property tests pass (`npm test`)
+- [x] 4.2 Lint + build pass (`npm run lint && npm run build`)
+- [x] 4.3 Reset happy-path E2E passes against the production build with local Supabase (`npm run test:e2e`)
+- [x] 4.7 Negative-path E2E: junk `token_hash` on `/auth/reset-password` renders the "invalid or expired" panel
+- [x] 4.4 Existing suites still green (`npm test && npm run test:integration`)
 
 #### Manual
 
-- [ ] 4.5 Break-verify: disabling `updateUser` makes the e2e fail at new-password sign-in; revert
-- [ ] 4.6 Mailpit link-extraction helper finds the recovery email reliably (run e2e twice, no flakiness)
+- [x] 4.5 Break-verify: disabling `updateUser` makes the e2e fail at new-password sign-in; revert
+- [x] 4.6 Mailpit link-extraction helper finds the recovery email reliably (run e2e twice, no flakiness)
