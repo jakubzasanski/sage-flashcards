@@ -844,34 +844,34 @@ validation gates, supplemented by per-screen manual render-verify.
 
 #### Automated
 
-- [x] 2.1 Linting passes: `npm run lint`
-- [x] 2.2 Build succeeds: `npm run build`
+- [x] 2.1 Linting passes: `npm run lint` — 2c1cb75
+- [x] 2.2 Build succeeds: `npm run build` — 2c1cb75
 
 #### Manual
 
-- [x] 2.3 Sage header (leaf + "Sage Flashcards" wordmark + 3 tabs + New card + theme toggle + avatar) matches the mockup; active tab highlights per route
-- [x] 2.4 Avatar menu opens and Sign out works
-- [x] 2.5 Theme toggle flips light↔dark and persists across reload with no flash; OS preference honored when unset
-- [x] 2.6 Language toggle flips EN↔PL: shell chrome + config banner re-label, `<html lang>` updates, choice persists
-- [x] 2.7 Mobile (≤640px): top tabs/New-card hide, bottom tab bar appears with active state, content clears the bar, no horizontal scroll to 320px
-- [x] 2.8 Browser tab shows "Sage Flashcards" + the leaf favicon
-- [x] 2.9 No grayscale/cosmic remnants in the shared chrome in either theme
+- [x] 2.3 Sage header (leaf + "Sage Flashcards" wordmark + 3 tabs + New card + theme toggle + avatar) matches the mockup; active tab highlights per route — 2c1cb75
+- [x] 2.4 Avatar menu opens and Sign out works — 2c1cb75
+- [x] 2.5 Theme toggle flips light↔dark and persists across reload with no flash; OS preference honored when unset — 2c1cb75
+- [x] 2.6 Language toggle flips EN↔PL: shell chrome + config banner re-label, `<html lang>` updates, choice persists — 2c1cb75
+- [x] 2.7 Mobile (≤640px): top tabs/New-card hide, bottom tab bar appears with active state, content clears the bar, no horizontal scroll to 320px — 2c1cb75
+- [x] 2.8 Browser tab shows "Sage Flashcards" + the leaf favicon — 2c1cb75
+- [x] 2.9 No grayscale/cosmic remnants in the shared chrome in either theme — 2c1cb75
 
 ### Phase 3: Review Screen
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `npm run lint`
-- [ ] 3.2 Build succeeds: `npm run build`
+- [x] 3.1 Linting passes: `npm run lint`
+- [x] 3.2 Build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 3.3 Review screen (card, progress, reveal-unfold, rating chips, done) matches the mockup
-- [ ] 3.4 Keyboard flow works: `Space` reveals, `1–4` rate and advance
-- [ ] 3.5 Reduced-motion: answer appears without animating when OS setting is on
-- [ ] 3.6 Zero-due, loading, and failed-save-retry states render warm
-- [ ] 3.7 Screen renders correctly in both light/dark themes, both languages (EN/PL), and at mobile widths; all chrome via `t()` incl. Polish plurals
-- [ ] 3.8 No regressions in review/scheduling behavior
+- [x] 3.3 Review screen (card, progress, reveal-unfold, rating chips, done) matches the mockup
+- [x] 3.4 Keyboard flow works: `Space` reveals, `1–4` rate and advance
+- [x] 3.5 Reduced-motion: answer appears without animating when OS setting is on
+- [x] 3.6 Zero-due, loading, and failed-save-retry states render warm
+- [x] 3.7 Screen renders correctly in both light/dark themes, both languages (EN/PL), and at mobile widths; all chrome via `t()` incl. Polish plurals
+- [x] 3.8 No regressions in review/scheduling behavior
 
 ### Phase 4: Generate Screen
 

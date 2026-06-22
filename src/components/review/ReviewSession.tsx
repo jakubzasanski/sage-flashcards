@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { AlertCircle, Check, Loader2, RefreshCw, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle, Check, Loader2, RefreshCw } from "lucide-react";
 import { useReviewKeys } from "@/components/hooks/useReviewKeys";
+import { cardNoun, plPL, t, type Locale } from "@/i18n";
 import type { DueResponse, ReviewCard, ReviewRating } from "@/types";
 
 // Roadmap S-02 review loop. Stateless session: the queue is fetched once from /api/review/due, and
@@ -16,24 +15,29 @@ import type { DueResponse, ReviewCard, ReviewRating } from "@/types";
 
 type Status = "loading" | "reviewing" | "caughtUp" | "error";
 
-// Display order doubles as the 1–4 key mapping (FR-016 four-level scale).
-const RATINGS: { rating: ReviewRating; label: string; className: string }[] = [
-  { rating: 1, label: "Again", className: "text-red-200 hover:text-red-100" },
-  { rating: 2, label: "Hard", className: "text-amber-200 hover:text-amber-100" },
-  { rating: 3, label: "Good", className: "text-emerald-200 hover:text-emerald-100" },
-  { rating: 4, label: "Easy", className: "text-sky-200 hover:text-sky-100" },
-];
+// Display order doubles as the 1–4 key mapping (FR-016 four-level scale); the
+// rating colour comes from the .rate[data-r] tokens in global.css.
+const RATINGS = [
+  { rating: 1, key: "rev.again" },
+  { rating: 2, key: "rev.hard" },
+  { rating: 3, key: "rev.good" },
+  { rating: 4, key: "rev.easy" },
+] as const;
 
-function formatNextDue(iso: string): string {
+function formatNextDue(iso: string, locale: Locale): string {
   const minutes = Math.round((new Date(iso).getTime() - Date.now()) / 60000);
-  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   if (minutes < 60) return rtf.format(Math.max(1, minutes), "minute");
   const hours = Math.round(minutes / 60);
   if (hours < 24) return rtf.format(hours, "hour");
   return rtf.format(Math.round(hours / 24), "day");
 }
 
-export default function ReviewSession() {
+interface ReviewSessionProps {
+  locale: Locale;
+}
+
+export default function ReviewSession({ locale }: ReviewSessionProps) {
   const [status, setStatus] = useState<Status>("loading");
   const [queue, setQueue] = useState<ReviewCard[]>([]);
   const [index, setIndex] = useState(0);
@@ -127,105 +131,132 @@ export default function ReviewSession() {
 
   if (status === "loading") {
     return (
-      <div className="flex justify-center py-16 text-blue-100/70">
-        <Loader2 className="size-6 animate-spin" />
+      <div className="review-loading" aria-busy="true">
+        <Loader2 aria-hidden="true" />
       </div>
     );
   }
 
   if (status === "error") {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/10 p-8 text-center backdrop-blur-xl">
-        <AlertCircle className="mx-auto mb-3 size-8 text-red-300" />
-        <p className="text-blue-100/80">Could not load your review queue.</p>
-        <Button className="mt-6" variant="secondary" onClick={() => void loadQueue()}>
-          <RefreshCw className="size-4" /> Try again
-        </Button>
+      <div className="done">
+        <div className="seal error">
+          <AlertCircle aria-hidden="true" />
+        </div>
+        <p>{t(locale, "rev.loadError")}</p>
+        <div className="actions">
+          <button type="button" className="btn btn-primary" onClick={() => void loadQueue()}>
+            {t(locale, "rev.tryAgain")}
+          </button>
+        </div>
       </div>
     );
   }
 
   if (status === "caughtUp") {
+    const reviewedText =
+      locale === "pl"
+        ? `Powtórzono ${reviewedCount} ${cardNoun(locale, reviewedCount, true)} w tej sesji.`
+        : `Reviewed ${reviewedCount} ${cardNoun(locale, reviewedCount)} this session.`;
+    const nextText = nextDueAt
+      ? locale === "pl"
+        ? `Następna powtórka ${formatNextDue(nextDueAt, locale)}.`
+        : `Next review ${formatNextDue(nextDueAt, locale)}.`
+      : null;
+
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/10 p-8 text-center backdrop-blur-xl">
-        <Check className="mx-auto mb-3 size-10 text-emerald-300" />
-        <p className="text-lg font-semibold">All caught up</p>
-        {reviewedCount > 0 && (
-          <p className="mt-1 text-sm text-blue-100/60">
-            Reviewed {reviewedCount} {reviewedCount === 1 ? "card" : "cards"} this session.
-          </p>
-        )}
-        {nextDueAt && <p className="mt-1 text-sm text-blue-100/60">Next review {formatNextDue(nextDueAt)}.</p>}
-        <div className="mt-6 flex items-center justify-center gap-3">
-          <Button variant="secondary" onClick={() => void loadQueue()}>
-            <RefreshCw className="size-4" /> Check for new cards
-          </Button>
-          <a
-            href="/generate"
-            className="inline-flex items-center gap-1 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            <Sparkles className="size-4" /> Generate more
+      <div className="done">
+        <div className="seal">
+          <Check aria-hidden="true" />
+        </div>
+        <h2>{t(locale, "rev.done")}</h2>
+        {reviewedCount > 0 && <p>{reviewedText}</p>}
+        {nextText && <p>{nextText}</p>}
+        <div className="actions">
+          <a className="btn btn-primary" href="/generate">
+            {t(locale, "rev.genMore")}
           </a>
+          <button type="button" className="btn btn-ghost" onClick={() => void loadQueue()}>
+            {t(locale, "rev.checkNew")}
+          </button>
         </div>
       </div>
     );
   }
 
   // Reviewing state.
+  const left = queue.length - index;
+  const pct = queue.length ? Math.round((index / queue.length) * 100) : 0;
+  const leftText =
+    locale === "pl" ? `Pozostało: ${left} ${cardNoun(locale, left)}` : `${left} ${cardNoun(locale, left)} left`;
+  const failText =
+    locale === "pl"
+      ? `${failed.length} ${plPL(failed.length, "ocena", "oceny", "ocen")} nie zapisano.`
+      : `${failed.length} ${failed.length === 1 ? "rating" : "ratings"} didn't save.`;
+
   return (
-    <div className="space-y-4">
-      <div className="text-center text-sm text-blue-100/60">
-        {queue.length - index} {queue.length - index === 1 ? "card" : "cards"} left
+    <div>
+      <div className="progress">
+        <span className="count">{leftText}</span>
+        <span className="bar">
+          <i style={{ width: `${pct}%` }} />
+        </span>
       </div>
 
-      <Card className="border-white/10 bg-white/10">
-        <CardContent className="space-y-4 p-6">
-          <div className="space-y-1">
-            <span className="text-xs font-medium tracking-wide text-blue-100/50 uppercase">Question</span>
-            <p className="text-lg text-white">{current.question}</p>
-          </div>
-
-          {revealed ? (
-            <div className="space-y-1 border-t border-white/10 pt-4">
-              <span className="text-xs font-medium tracking-wide text-blue-100/50 uppercase">Answer</span>
-              <p className="text-lg text-white">{current.answer}</p>
-            </div>
-          ) : (
-            <div className="border-t border-white/10 pt-4">
-              <Button onClick={onReveal} className="w-full" variant="secondary">
-                Show answer <kbd className="ml-1 rounded bg-white/15 px-1.5 text-xs">Space</kbd>
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {revealed && (
-        <div className="grid grid-cols-4 gap-2">
-          {RATINGS.map(({ rating, label, className }) => (
-            <Button
-              key={rating}
-              variant="ghost"
-              className={`flex-col border border-white/10 bg-white/5 py-3 ${className}`}
-              onClick={() => {
-                onRate(rating);
-              }}
-            >
-              <span className="font-medium">{label}</span>
-              <kbd className="rounded bg-white/15 px-1.5 text-xs">{rating}</kbd>
-            </Button>
-          ))}
+      <div className={revealed ? "card lift" : "card"}>
+        <span className="label">{t(locale, "rev.question")}</span>
+        <p className="q">{current.question}</p>
+        <div className={revealed ? "answer show" : "answer"}>
+          <hr className="divider" />
+          <span className="label">{t(locale, "rev.answer")}</span>
+          <p className="a">{current.answer}</p>
         </div>
+        {!revealed && (
+          <div className="reveal-wrap">
+            <button type="button" className="reveal" onClick={onReveal}>
+              {t(locale, "rev.show")} <kbd>Space</kbd>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {revealed ? (
+        <>
+          <div className="ratings">
+            {RATINGS.map(({ rating, key }) => (
+              <button
+                key={rating}
+                type="button"
+                className="rate"
+                data-r={rating}
+                onClick={() => {
+                  onRate(rating);
+                }}
+              >
+                <span className="dot" />
+                <span className="name">{t(locale, key)}</span>
+                <kbd>{rating}</kbd>
+              </button>
+            ))}
+          </div>
+          <p className="hint">
+            <kbd>1</kbd> {t(locale, "rev.again")} · <kbd>2</kbd> {t(locale, "rev.hard")} · <kbd>3</kbd>{" "}
+            {t(locale, "rev.good")} · <kbd>4</kbd> {t(locale, "rev.easy")}
+          </p>
+        </>
+      ) : (
+        <p className="hint">
+          {t(locale, "rev.recallHint")} <kbd>Space</kbd>.
+        </p>
       )}
 
       {failed.length > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm text-amber-100">
-          <span className="inline-flex items-center gap-2">
-            <AlertCircle className="size-4" />
-            {failed.length} {failed.length === 1 ? "rating" : "ratings"} didn&apos;t save.
+        <div className="retry-banner">
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+            <AlertCircle aria-hidden="true" /> {failText}
           </span>
-          <button type="button" onClick={() => void retryFailed()} className="inline-flex items-center gap-1 underline">
-            <RefreshCw className="size-3.5" /> Retry
+          <button type="button" className="retry-btn" onClick={() => void retryFailed()}>
+            <RefreshCw aria-hidden="true" /> {t(locale, "rev.retry")}
           </button>
         </div>
       )}

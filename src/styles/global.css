@@ -507,6 +507,300 @@
     color: var(--accent-deep);
   }
 
+  /* ---------- review ---------- */
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  .progress .count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .bar {
+    flex: 1;
+    height: 7px;
+    border-radius: 99px;
+    background: var(--ground-deep);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(74, 58, 36, 0.08);
+  }
+  .bar > i {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-warm));
+    transition: width 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    padding: clamp(26px, 4vw, 40px);
+    transition:
+      box-shadow 0.3s,
+      transform 0.3s;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 16px;
+    bottom: 16px;
+    width: 4px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--accent-green), var(--accent-warm));
+    opacity: 0.9;
+  }
+  .card.lift {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
+  }
+  .q {
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 3.4vw, 1.85rem);
+    line-height: 1.32;
+    font-weight: 600;
+    color: var(--text);
+    margin: 10px 0 0;
+  }
+  .answer {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      max-height 0.4s cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity 0.3s ease 0.05s,
+      transform 0.35s ease 0.05s,
+      margin 0.4s;
+    margin-top: 0;
+  }
+  .answer.show {
+    max-height: 420px;
+    opacity: 1;
+    transform: translateY(0);
+    margin-top: 26px;
+  }
+  .answer .divider {
+    border: none;
+    border-top: 1px dashed var(--line);
+    margin: 0 0 22px;
+  }
+  .a {
+    font-family: var(--serif);
+    font-size: clamp(1.15rem, 2.6vw, 1.4rem);
+    line-height: 1.5;
+    color: var(--text-soft);
+    margin: 10px 0 0;
+  }
+  .reveal-wrap {
+    margin-top: 28px;
+  }
+  .reveal {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--ground);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 0.98rem;
+    font-weight: 600;
+    padding: 16px;
+    border-radius: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition:
+      background 0.15s,
+      border-color 0.15s,
+      transform 0.08s;
+  }
+  .reveal:hover {
+    background: #fff;
+    border-color: #decdb6;
+  }
+  html.dark .reveal:hover {
+    background: #322b22;
+    border-color: #4a4133;
+  }
+  .reveal:active {
+    transform: scale(0.992);
+  }
+  .ratings {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .rate {
+    --c: var(--text-soft);
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 18px;
+    padding: 16px 8px 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    transition:
+      transform 0.1s,
+      box-shadow 0.18s,
+      border-color 0.15s,
+      background 0.15s;
+  }
+  .rate .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 99px;
+    background: var(--c);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 16%, transparent);
+  }
+  .rate .name {
+    font-weight: 650;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .rate kbd {
+    color: var(--c);
+  }
+  .rate:hover {
+    border-color: var(--c);
+    background: color-mix(in srgb, var(--c) 7%, var(--surface));
+    transform: translateY(-2px);
+    box-shadow: 0 12px 22px -16px var(--c);
+  }
+  .rate:active {
+    transform: translateY(0);
+  }
+  .rate[data-r="1"] {
+    --c: var(--r-again);
+  }
+  .rate[data-r="2"] {
+    --c: var(--r-hard);
+  }
+  .rate[data-r="3"] {
+    --c: var(--r-good);
+  }
+  .rate[data-r="4"] {
+    --c: var(--r-easy);
+  }
+  .hint {
+    margin-top: 22px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--text-faint);
+  }
+  .hint kbd {
+    font-size: 0.68rem;
+  }
+  .done {
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    padding: 56px 32px;
+  }
+  .done .seal {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--r-good) 14%, var(--surface));
+    color: var(--r-good);
+    display: grid;
+    place-items: center;
+  }
+  .done .seal.error {
+    background: color-mix(in srgb, var(--r-again) 14%, var(--surface));
+    color: var(--r-again);
+  }
+  .done .seal svg {
+    width: 30px;
+    height: 30px;
+  }
+  .done h2 {
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+  .done p {
+    color: var(--text-soft);
+    margin: 4px 0;
+    font-size: 0.98rem;
+  }
+  .done .actions {
+    margin-top: 28px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  /* loading spinner + failed-save retry banner (Sage additions to the mockup) */
+  .review-loading {
+    display: grid;
+    place-items: center;
+    padding: 80px 0;
+    color: var(--text-faint);
+  }
+  .review-loading svg {
+    width: 28px;
+    height: 28px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .retry-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+    background: color-mix(in srgb, var(--r-hard) 10%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--r-hard) 35%, var(--line));
+    color: var(--r-hard);
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-size: 0.88rem;
+  }
+  .retry-banner .retry-btn {
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: underline;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .retry-banner svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* focus rings in accent green across chrome (mockup) */
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--accent-deep);
+    outline-offset: 2px;
+  }
+
   /* ---------- mobile bottom tab bar (hidden on desktop) ---------- */
   .bottombar {
     display: none;
