@@ -14,8 +14,8 @@ setup("authenticate", async ({ page }) => {
   await page.getByLabel("Password", { exact: true }).fill(E2E_USER.password);
   await page.getByRole("button", { name: "Sign in" }).click();
 
-  // Sign-in redirects to "/" on success — wait for that state, not a timeout.
-  await page.waitForURL("/");
+  // Sign-in redirects to "/dashboard" on success — wait for that state, not a timeout.
+  await page.waitForURL("/dashboard");
 
   // Prove the session is real: the protected route now renders instead of redirecting.
   await page.goto("/generate");
