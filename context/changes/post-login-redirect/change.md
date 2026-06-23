@@ -1,7 +1,7 @@
 ---
 change_id: post-login-redirect
 title: Authenticated-user routing — land on /dashboard, keep guest pages out of reach
-status: implemented
+status: impl_reviewed
 created: 2026-06-23
 updated: 2026-06-23
 archived_at: null

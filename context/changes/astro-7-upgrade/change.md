@@ -1,7 +1,7 @@
 ---
 change_id: astro-7-upgrade
 title: Update Astro from v6 to v7 (major version upgrade)
-status: implemented
+status: impl_reviewed
 created: 2026-06-23
 updated: 2026-06-23
 archived_at: null
