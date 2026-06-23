@@ -64,6 +64,10 @@
     "vitest": "^4.1.9",
     "wrangler": "^4.90.0"
   },
+  "overrides": {
+    "yaml": "^2.9.0",
+    "qs": "^6.15.2"
+  },
   "lint-staged": {
     "*.{ts,tsx,astro}": [
       "eslint --fix"
