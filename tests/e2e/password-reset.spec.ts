@@ -90,11 +90,11 @@ test.describe("password reset (FR-006)", () => {
         await page.getByLabel("Password", { exact: true }).fill(newPassword);
       },
       () => page.getByRole("button", { name: "Sign in" }).click(),
-      "/",
+      "/dashboard",
     );
 
     await page.goto("/generate");
-    await expect(page.getByRole("heading", { name: "Generate flashcards" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Turn your notes into cards" })).toBeVisible();
   });
 
   test("an invalid/expired recovery link shows the 'request a new link' state", async ({ page }) => {

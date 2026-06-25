@@ -115,6 +115,7 @@ export const pl: Record<string, string> = {
   "auth.backHome": "Strona główna",
   "auth.checkEmail": "Sprawdź pocztę",
   "auth.resetSent": "Jeśli konto dla tego adresu istnieje, wysłaliśmy link do zresetowania hasła. Sprawdź skrzynkę.",
+  "auth.resetDone": "Twoje hasło zostało zaktualizowane — zaloguj się nowym hasłem.",
   "auth.expiredTitle": "Ten link resetujący jest nieprawidłowy lub wygasł",
   "auth.expiredSub":
     "Linki resetujące działają jednorazowo i wygasają po krótkim czasie. Poproś o nowy, aby kontynuować.",

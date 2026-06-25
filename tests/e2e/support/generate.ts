@@ -10,7 +10,9 @@ import { type Page, expect } from "@playwright/test";
 // React must observe, and retries until the app reflects it (button enabled). Waits on STATE,
 // never a fixed timeout; once the island is hydrated it passes on the first attempt.
 export async function fillSourceText(page: Page, text: string): Promise<void> {
-  const textbox = page.getByRole("textbox", { name: /paste/i });
+  // The source textarea's accessible name is its aria-label (gen.title), which overrides the
+  // "Paste…" placeholder text for the accessible name.
+  const textbox = page.getByRole("textbox", { name: /turn your notes/i });
   const generateButton = page.getByRole("button", { name: "Generate cards" });
   await expect(async () => {
     await textbox.fill("");

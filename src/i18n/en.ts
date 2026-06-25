@@ -116,6 +116,7 @@ export const en: Record<string, string> = {
   "auth.backHome": "Home",
   "auth.checkEmail": "Check your email",
   "auth.resetSent": "If an account exists for that email, we've sent a password-reset link. Check your inbox.",
+  "auth.resetDone": "Your password has been updated — sign in with your new password.",
   "auth.expiredTitle": "This reset link is invalid or has expired",
   "auth.expiredSub": "Reset links can only be used once and expire after a short time. Request a new one to continue.",
   "auth.requestNew": "Request a new link",

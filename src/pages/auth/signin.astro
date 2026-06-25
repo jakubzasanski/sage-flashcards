@@ -20,7 +20,7 @@ const reset = Astro.url.searchParams.get("reset");
       </a>
       <h1>{t(locale, "auth.welcomeTitle")}</h1>
       <p class="sub">{t(locale, "auth.welcomeSub")}</p>
-      {reset && <p class="reset-note">{t(locale, "auth.resetSent")}</p>}
+      {reset && <p class="reset-note">{t(locale, "auth.resetDone")}</p>}
       <SignInForm serverError={error} locale={locale} client:load />
       <div class="auth-row">
         <a href="/auth/forgot-password">{t(locale, "auth.forgot")}</a>

@@ -43,7 +43,7 @@ test.describe("generate → save (seed exemplar)", () => {
     await page.getByRole("button", { name: "Generate cards" }).click();
 
     // Review state: wait for the candidate count to render (state, not time).
-    await expect(page.getByText("2 of 2 accepted")).toBeVisible();
+    await expect(page.getByText("2 of 2 cards accepted")).toBeVisible();
 
     // Save the accepted cards and confirm they reached the deck.
     await page.getByRole("button", { name: /save 2 cards/i }).click();

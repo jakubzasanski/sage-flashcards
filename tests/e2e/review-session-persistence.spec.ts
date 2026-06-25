@@ -39,20 +39,20 @@ test.describe("in-progress review session", () => {
     await page.getByRole("button", { name: "Generate cards" }).click();
 
     // Both candidates start accepted.
-    await expect(page.getByText("2 of 2 accepted")).toBeVisible();
+    await expect(page.getByText("2 of 2 cards accepted")).toBeVisible();
 
-    // Reject the second card — the accepted count drops and a Restore affordance appears.
+    // Reject the second card — the accepted count drops and the card shows its rejected state.
     await page.getByRole("button", { name: "Reject" }).nth(1).click();
-    await expect(page.getByText("1 of 2 accepted")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Restore" })).toBeVisible();
+    await expect(page.getByText("1 of 2 cards accepted")).toBeVisible();
+    await expect(page.getByText("Rejected", { exact: true })).toBeVisible();
 
     // The risk: a refresh before saving must NOT wipe the review session.
     await page.reload();
 
     // Session restored exactly — same accepted count AND the rejection decision survived.
     // (If the risk materializes, the page returns to the empty paste state and these fail.)
-    await expect(page.getByText("1 of 2 accepted")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Restore" })).toBeVisible();
+    await expect(page.getByText("1 of 2 cards accepted")).toBeVisible();
+    await expect(page.getByText("Rejected", { exact: true })).toBeVisible();
 
     // The restored, accepted card still saves to the deck — exactly one card, not two.
     await page.getByRole("button", { name: /save 1 card/i }).click();
