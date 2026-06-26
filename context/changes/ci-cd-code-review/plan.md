@@ -263,7 +263,7 @@ Manual GitHub setup required before the Phase 3 PR run:
 
 #### Manual
 
-- [ ] 2.3 Via `workflow_dispatch`, action installs deps, runs agent, surfaces `verdict` output
+- [x] 2.3 Via `workflow_dispatch`, action installs deps, runs agent, surfaces `verdict` output — superseded by Phase 4 two-phase flow; consumer run 28270300312 log shows npm ci + agent + verdict/usage
 
 ### Phase 3: Consumer workflow .github/workflows/review.yml
 
@@ -288,5 +288,5 @@ Manual GitHub setup required before the Phase 3 PR run:
 
 #### Manual
 
-- [ ] 4.3 Test PR (post-merge): producer secretless, consumer from default branch, comment + label + red/green status on PR
-- [ ] 4.4 A step added to `review.yml` on a PR branch cannot read the secret (property holds)
+- [x] 4.3 Test PR (post-merge): producer secretless, consumer from default branch, comment + label + red/green status on PR — PR #6: ai-cr:passed + commit status context "AI Code Review" state=success; consumer run 28270300312 (after diff-path hotfix 80234f0)
+- [x] 4.4 A step added to `review.yml` on a PR branch cannot read the secret (property holds) — consumer ran headBranch=master/event=workflow_run (trusted, default-branch code); producer review.yml has no `secrets.` ref and permissions: contents: read
