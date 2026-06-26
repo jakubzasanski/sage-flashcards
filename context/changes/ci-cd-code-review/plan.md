@@ -234,7 +234,7 @@ Manual GitHub setup required before the Phase 3 PR run:
 
 #### Manual
 
-- [ ] 3.3 Test PR: `AI Code Review` runs, comment with summary appears
-- [ ] 3.4 Correct label set + check green on pass / red on fail
-- [ ] 3.5 Adding `ai-cr:review` re-runs the review
-- [ ] 3.6 Job log shows agent invocation + token usage (10xChampion proof)
+- [x] 3.3 Test PR: `AI Code Review` runs, comment with summary appears — PR #5, run 28268734346
+- [x] 3.4 Correct label set + check green on pass / red on fail — both paths proven: run 1 pass→green→ai-cr:passed; re-run fail→red→ai-cr:failed
+- [x] 3.5 Adding `ai-cr:review` re-runs the review — run 28268797618 triggered by label
+- [x] 3.6 Job log shows agent invocation + token usage (10xChampion proof) — usage input=28227/output=441
