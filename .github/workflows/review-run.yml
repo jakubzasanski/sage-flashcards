@@ -24,10 +24,14 @@ env:
 jobs:
   review:
     runs-on: ubuntu-latest
-    # Only handle producer runs that came from a PR or a manual dispatch.
+    # Only handle SUCCESSFUL producer runs from a PR or a manual dispatch. The
+    # conclusion guard matters: a skipped producer (e.g. a `labeled` event with a
+    # label other than ai-cr:review) still "completes", and without this guard the
+    # consumer would fire and fail downloading a non-existent artifact.
     if: >-
-      github.event.workflow_run.event == 'pull_request' ||
-      github.event.workflow_run.event == 'workflow_dispatch'
+      github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.event == 'pull_request' ||
+       github.event.workflow_run.event == 'workflow_dispatch')
     steps:
       - name: Checkout (default branch — trusted code)
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -82,6 +86,7 @@ jobs:
           HEAD_SHA: ${{ steps.meta.outputs.head_sha }}
           VERDICT: ${{ steps.review.outputs.verdict }}
           SUMMARY_PATH: ${{ steps.review.outputs.summary-path }}
+          SRC_EVENT: ${{ github.event.workflow_run.event }}
         run: |
           set -euo pipefail
           gh label create "ai-cr:passed" --color 0E8A16 --description "AI code review passed" --force --repo "$REPO"
@@ -107,4 +112,9 @@ jobs:
               -f state="$state" \
               -f context="AI Code Review" \
               -f description="verdict=$VERDICT"
+          elif [ "$SRC_EVENT" = "pull_request" ]; then
+            # The commit status is the only PR-visible signal — an empty head_sha on a
+            # real PR is a bug (metadata drift), not a no-op. Fail loudly.
+            echo "::error::pull_request run but head_sha is empty — cannot post commit status" >&2
+            exit 1
           fi
