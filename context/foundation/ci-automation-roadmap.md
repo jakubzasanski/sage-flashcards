@@ -27,15 +27,15 @@ Turn a repo with a single `lint + unit + build` CI job and fully-manual deploys 
 
 | ID   | Change ID                   | Outcome                                                        | Prerequisites      | Refs            | Status   |
 | ---- | --------------------------- | ------------------------------------------------------------- | ------------------ | --------------- | -------- |
-| S-00 | phase-0-rebrand             | repo/app rebranded to Sage Flashcards (in-repo)               | —                  | #7, rename      | done*    |
-| F-01 | live-cutover-sage-worker    | (foundation) live cutover: renamed Worker + Supabase URLs + GitHub brand surfaces | S-00     | rename, #7      | blocked  |
+| S-00 | phase-0-rebrand             | repo/app rebranded to Sage Flashcards                         | —                  | #7, rename      | done     |
+| F-01 | live-cutover-sage-worker    | (foundation) live cutover: renamed Worker + Supabase URLs + GitHub brand surfaces | S-00     | rename, #7      | done     |
 | S-01 | ci-test-pyramid             | full test pyramid runs on every PR and gates merges           | —                  | #1              | ready    |
 | S-02 | release-automation          | branch-per-change + auto version bump + changelog on merge    | S-01               | #3, #4, #5      | proposed |
 | S-03 | cd-migrate-and-deploy       | merges to master ship Supabase migrations → Cloudflare Worker | S-01, F-01, (S-02) | #2              | blocked  |
 | S-04 | dependency-automation       | dependency PRs open automatically and safe ones auto-merge    | S-01, S-02         | #6              | proposed |
 | S-05 | extra-ci-tooling            | security scan + coverage + preview deploys + mutation cron    | S-01               | "co jeszcze"    | proposed |
 
-<sub>* S-00 is implemented in-repo on **PR #4** (awaiting merge); flips to fully `done` once merged + its external steps land via F-01.</sub>
+<sub>S-00 (rebrand) merged via **PR #4** (884d8ed). F-01 (live cutover) completed — renamed Worker deployed with secrets + SESSION KV, old Worker removed, Supabase Auth URLs updated, GitHub social-preview + avatar set.</sub>
 
 ## Streams
 
@@ -57,7 +57,7 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 - **Release / versioning:** ⬜ absent — no release-please / changelog / commitlint / branch protection.
 - **Dependency automation:** ⬜ absent — no `.github/dependabot.yml` (only a draft inside the old plan doc).
 - **Security / quality tooling:** ⬜ absent (CodeQL, coverage, secret-scanning) · 🟡 Stryker installed but not wired to CI · ✅ README status badges present.
-- **External (live):** 🔧 renamed Worker not yet deployed; Worker secrets/KV not re-added; Supabase Auth URLs not updated; GitHub social-preview/avatar not uploaded.
+- **External (live):** ✅ done — renamed Worker deployed (5 secrets + SESSION KV), old `10x-cards` Worker removed, Supabase Auth Site/Redirect URLs updated, GitHub social-preview + avatar set.
 
 ## Foundations
 
@@ -67,13 +67,13 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 - **Change ID:** live-cutover-sage-worker
 - **Refs:** rename (D2), ask #7
 - **Unlocks:** S-03 (CD must deploy the *new* Worker with secrets/KV already provisioned); the live production app on the new URL.
-- **Prerequisites:** S-00 (in-repo rename — done on PR #4)
+- **Prerequisites:** S-00 (in-repo rename — merged via PR #4)
 - **Parallel with:** S-01
-- **Blockers:** needs your Cloudflare + Supabase + GitHub account access (cannot be done from the repo).
+- **Blockers:** — (cutover completed)
 - **Unknowns:**
-  - Use a custom domain (`app.sage-flashcards.com`) now, or stay on `*.workers.dev`? — Owner: user. Block: no.
+  - Custom domain (`app.sage-flashcards.com`) — deferred; staying on `*.workers.dev` for now. Owner: user. Block: no.
 - **Risk:** sequenced before S-03 so CD never targets a half-provisioned Worker; renaming orphans the old Worker, so do the checklist in one sitting.
-- **Status:** blocked
+- **Status:** done
 
 ## Slices
 
@@ -145,7 +145,7 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 
 | Roadmap ID | Change ID                | Suggested issue title                                  | Ready for `/10x-plan` | Notes                                  |
 | ---------- | ------------------------ | ----------------------------------------------------- | --------------------- | -------------------------------------- |
-| F-01       | live-cutover-sage-worker | Live cutover: deploy renamed Worker + Supabase + brand| no                    | External ops; checklist in old plan/PR #4 |
+| F-01       | live-cutover-sage-worker | Live cutover: deploy renamed Worker + Supabase + brand| done                  | ✅ completed 2026-06-26                 |
 | S-01       | ci-test-pyramid          | CI: full test pyramid gating PRs                      | yes                   | `/10x-plan ci-test-pyramid`            |
 | S-02       | release-automation       | Branch protection + release-please + changelog         | after S-01            | —                                      |
 | S-03       | cd-migrate-and-deploy    | CD: migrate Supabase → deploy Worker on green master   | after S-01 + F-01     | needs production env secrets           |
@@ -154,7 +154,7 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 
 ## Open Roadmap Questions
 
-1. **Custom domain now or later?** — Owner: user. Block: `F-01` framing (workers.dev is fine to start).
+1. **Custom domain (`app.sage-flashcards.com`) later?** — Owner: user. Block: none (F-01 shipped on `*.workers.dev`; revisit anytime).
 2. **e2e a required merge gate?** — Owner: user. Block: none (D4 = blocking; revisit if flaky).
 3. **Deploy fully automatic vs add an approval gate later?** — Owner: user. Block: none (D5 = automatic).
 
@@ -166,4 +166,5 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 
 ## Done
 
-- **S-00: repo/app rebranded to Sage Flashcards (in-repo)** — implemented on PR #4 (`chore/rebrand-sage-flashcards`); awaiting merge. Flips to fully done once merged + F-01 (live cutover) lands.
+- **S-00: repo/app rebranded to Sage Flashcards** — Merged 2026-06-26 via PR #4 (`chore/rebrand-sage-flashcards`, 884d8ed). Names → `sage-flashcards`, two-leaf logo everywhere, favicon/PWA/maskable icons, README, og-image, manifest.
+- **F-01: live cutover to the renamed Worker + Supabase + GitHub brand surfaces** — Completed 2026-06-26. Renamed Worker deployed (5 secrets + SESSION KV), old `10x-cards` Worker removed, Supabase Auth Site/Redirect URLs updated, GitHub social-preview + avatar set.
