@@ -32,6 +32,19 @@ if (!diff.trim()) {
   }
 }
 
-const { review, usage } = await reviewDiff(diff);
+// Kontekst PR-a wpada przez env, żeby nie mieszać go z kanałem stdin (diff).
+const { review, usage } = await reviewDiff(diff, {
+  prTitle: process.env.PR_TITLE,
+  prBody: process.env.PR_BODY,
+});
 console.log(JSON.stringify(review, null, 2));
 if (usage) console.error("\n📊 usage:", JSON.stringify(usage));
+
+// Bramka dla CI: gdy REVIEW_FAIL_ON_VERDICT=1, werdykt "fail" kończy proces kodem 2
+// (odrębnym od kodu 1 dla braku wejścia powyżej). Domyślnie wyłączone — lokalne
+// uruchomienia i evale promptfoo pozostają niebramkujące. Akcja CI tego NIE ustawia
+// (gejtuje na sparsowanym `verdict`), patrz plan Phase 2/3.
+if (process.env.REVIEW_FAIL_ON_VERDICT === "1" && review.verdict === "fail") {
+  console.error("❌ verdict=fail — kończę kodem 2 (REVIEW_FAIL_ON_VERDICT=1).");
+  process.exit(2);
+}

@@ -1,0 +1,88 @@
+name: AI Code Review
+
+# Phase 1 of a two-phase secure pipeline (PRODUCER). Runs in the untrusted PR
+# context and touches NO secret and NO PR-controlled agent code — it only computes
+# the diff and uploads it as an artifact. The TRUSTED consumer (review-run.yml) runs
+# the default-branch version on workflow_run, holds OPENAI_API_KEY, and does the
+# actual review + reporting. This split closes impl-review F6: on plain pull_request
+# the secret would be exposed to same-repo-branch PR authors (npm ci / agent / this
+# very workflow file are all PR-controlled).
+
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize, labeled]
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: Base ref to diff HEAD against (dispatch dry-run only).
+        required: false
+        default: master
+      pr_number:
+        description: PR number (dispatch only; recorded into pr-meta for the consumer).
+        required: false
+        default: ""
+
+# Producer needs nothing but read access — no secret, no write scopes.
+permissions:
+  contents: read
+
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    # Run for a manual dispatch, ordinary PR events, and a `labeled` event ONLY when
+    # the label is ai-cr:review (the consumer re-applies verdict labels, which would
+    # otherwise re-trigger this producer in a loop).
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && github.event.action != 'labeled') ||
+      (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'ai-cr:review')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute PR diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # Diff against the base SHA (reachable thanks to fetch-depth: 0), NOT a
+            # named remote-tracking branch which may not exist on the runner.
+            base_sha="${{ github.event.pull_request.base.sha }}"
+          else
+            git fetch --no-tags origin "${{ github.event.inputs.base_ref }}"
+            base_sha="$(git rev-parse FETCH_HEAD)"
+          fi
+          echo "Diffing ${base_sha}...HEAD"
+          git diff "${base_sha}...HEAD" > "$RUNNER_TEMP/pr.diff"
+
+      - name: Write PR metadata
+        shell: bash
+        env:
+          # PR-controlled values arrive via env (never shell-interpolated) and are
+          # serialized with jq so a crafted title/body cannot break or inject the file.
+          PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.event.inputs.pr_number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          jq -n \
+            --arg number "$PR_NUMBER" \
+            --arg title "$PR_TITLE" \
+            --arg body "$PR_BODY" \
+            --arg head_sha "$PR_HEAD_SHA" \
+            '{number: $number, title: $title, body: $body, head_sha: $head_sha}' \
+            > "$RUNNER_TEMP/pr-meta.json"
+
+      - name: Upload review payload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ai-review-payload
+          path: |
+            ${{ runner.temp }}/pr.diff
+            ${{ runner.temp }}/pr-meta.json
+          retention-days: 1
+          if-no-files-found: error

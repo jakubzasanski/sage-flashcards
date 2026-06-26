@@ -1,0 +1,26 @@
+{
+  "name": "@twoj-zespol/ai-toolkit",
+  "version": "0.1.0",
+  "description": "Team AI artifacts distributed through GitHub Packages",
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "skills/",
+    "rules/",
+    "install.js",
+    "uninstall.js",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "bin": {
+    "ai-toolkit": "./install.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

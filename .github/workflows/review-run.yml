@@ -1,0 +1,120 @@
+name: AI Code Review (run)
+
+# Phase 2 of the secure pipeline (TRUSTED consumer). Triggered when the "AI Code
+# Review" producer completes. A workflow_run job ALWAYS runs the default-branch
+# version of this file and the repo code, so a PR author cannot modify the code that
+# sees the secret. This is the only place OPENAI_API_KEY is referenced. It downloads
+# the producer's diff artifact, runs the agent, and reports back to the PR.
+
+on:
+  workflow_run:
+    workflows: ["AI Code Review"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read # download the producer run's artifact
+  pull-requests: write # comment + labels
+  issues: write # label creation
+  statuses: write # red/green commit status on the PR head
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    # Only handle SUCCESSFUL producer runs from a PR or a manual dispatch. The
+    # conclusion guard matters: a skipped producer (e.g. a `labeled` event with a
+    # label other than ai-cr:review) still "completes", and without this guard the
+    # consumer would fire and fail downloading a non-existent artifact.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.event == 'pull_request' ||
+       github.event.workflow_run.event == 'workflow_dispatch')
+    steps:
+      - name: Checkout (default branch — trusted code)
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: packages/code-reviewer/package-lock.json
+
+      - name: Download review payload
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ai-review-payload
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: payload
+
+      - name: Read PR metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          meta="payload/pr-meta.json"
+          # Scalars are safe as step outputs; title/body go to $GITHUB_ENV with a
+          # random heredoc delimiter so multiline / crafted content can't break it.
+          {
+            echo "number=$(jq -r '.number' "$meta")"
+            echo "head_sha=$(jq -r '.head_sha' "$meta")"
+          } >> "$GITHUB_OUTPUT"
+          delim="EOF_$(openssl rand -hex 12)"
+          {
+            echo "PR_TITLE<<$delim"; jq -r '.title' "$meta"; echo "$delim"
+            echo "PR_BODY<<$delim";  jq -r '.body'  "$meta"; echo "$delim"
+          } >> "$GITHUB_ENV"
+
+      - name: Run AI review (trusted, with secret)
+        id: review
+        uses: ./.github/actions/ai-review
+        with:
+          api-key: ${{ secrets.OPENAI_API_KEY }}
+          diff-path: payload/pr.diff
+          pr-title: ${{ env.PR_TITLE }}
+          pr-body: ${{ env.PR_BODY }}
+
+      - name: Report back to the PR
+        shell: bash
+        env:
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ steps.meta.outputs.number }}
+          HEAD_SHA: ${{ steps.meta.outputs.head_sha }}
+          VERDICT: ${{ steps.review.outputs.verdict }}
+          SUMMARY_PATH: ${{ steps.review.outputs.summary-path }}
+          SRC_EVENT: ${{ github.event.workflow_run.event }}
+        run: |
+          set -euo pipefail
+          gh label create "ai-cr:passed" --color 0E8A16 --description "AI code review passed" --force --repo "$REPO"
+          gh label create "ai-cr:failed" --color B60205 --description "AI code review failed" --force --repo "$REPO"
+          gh label create "ai-cr:review" --color 1D76DB --description "Re-run AI code review" --force --repo "$REPO"
+
+          if [ "$VERDICT" = "pass" ]; then verdict_label="ai-cr:passed"; state="success"; else verdict_label="ai-cr:failed"; state="failure"; fi
+
+          if [ -n "$NUMBER" ]; then
+            gh pr comment "$NUMBER" --repo "$REPO" --body-file "$SUMMARY_PATH"
+            gh pr edit "$NUMBER" --repo "$REPO" \
+              --remove-label "ai-cr:passed" --remove-label "ai-cr:failed" --remove-label "ai-cr:review" || true
+            gh pr edit "$NUMBER" --repo "$REPO" --add-label "$verdict_label"
+          else
+            echo "No PR number (dispatch) — review summary:"
+            cat "$SUMMARY_PATH"
+          fi
+
+          # A workflow_run job is not attached to the PR's checks, so publish a commit
+          # status on the PR head SHA to surface green/red on the PR.
+          if [ -n "$HEAD_SHA" ]; then
+            gh api -X POST "repos/$REPO/statuses/$HEAD_SHA" \
+              -f state="$state" \
+              -f context="AI Code Review" \
+              -f description="verdict=$VERDICT"
+          elif [ "$SRC_EVENT" = "pull_request" ]; then
+            # The commit status is the only PR-visible signal — an empty head_sha on a
+            # real PR is a bug (metadata drift), not a no-op. Fail loudly.
+            echo "::error::pull_request run but head_sha is empty — cannot post commit status" >&2
+            exit 1
+          fi

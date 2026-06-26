@@ -1,0 +1,71 @@
+name: AI Code Review
+description: >-
+  Scores a unified diff with the @sage/code-reviewer (Codex SDK) agent and
+  returns a structured verdict plus a Markdown summary file. Pure scoring —
+  no GitHub side-effects (no comments, no labels, no check status).
+
+inputs:
+  api-key:
+    description: OpenAI API key for the Codex SDK (maps to OPENAI_API_KEY).
+    required: true
+  diff-path:
+    description: Path to a file containing the unified diff to review.
+    required: true
+  pr-title:
+    description: PR title (declared intent) passed to the reviewer as context.
+    required: false
+    default: ""
+  pr-body:
+    description: PR body (declared intent) passed to the reviewer as context.
+    required: false
+    default: ""
+  model:
+    description: Optional model override for the reviewer (maps to REVIEW_MODEL).
+    required: false
+    default: ""
+
+outputs:
+  verdict:
+    description: The reviewer's binding verdict — "pass" or "fail".
+    value: ${{ steps.review.outputs.verdict }}
+  summary-path:
+    description: Path to a file holding the Markdown review summary.
+    value: ${{ steps.review.outputs.summary-path }}
+
+runs:
+  using: composite
+  steps:
+    # The repo is checked out whole, so the package sits at
+    # $GITHUB_WORKSPACE/packages/code-reviewer with its OWN lockfile — the app's
+    # root install does not provide the Codex SDK, so install here.
+    - name: Install reviewer dependencies
+      shell: bash
+      working-directory: ${{ github.workspace }}/packages/code-reviewer
+      run: npm ci
+
+    # Run the agent and expose results. We do NOT set REVIEW_FAIL_ON_VERDICT here:
+    # a non-zero exit would abort the step before the verdict output is emitted.
+    # Gating on `fail` is the consumer workflow's job (it reads this verdict output).
+    # `npm run --silent` keeps npm's lifecycle banner off stdout so the JSON is clean.
+    - name: Run code review
+      id: review
+      shell: bash
+      working-directory: ${{ github.workspace }}/packages/code-reviewer
+      env:
+        OPENAI_API_KEY: ${{ inputs.api-key }}
+        PR_TITLE: ${{ inputs.pr-title }}
+        PR_BODY: ${{ inputs.pr-body }}
+        REVIEW_MODEL: ${{ inputs.model }}
+      run: |
+        set -euo pipefail
+        review_json="$RUNNER_TEMP/review.json"
+        summary_path="$RUNNER_TEMP/review-summary.md"
+
+        npm run --silent review < "${{ inputs.diff-path }}" > "$review_json"
+
+        verdict=$(node -e 'const fs=require("fs");const j=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));process.stdout.write(String(j.verdict))' "$review_json")
+        node -e 'const fs=require("fs");const j=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));fs.writeFileSync(process.argv[2], String(j.summary))' "$review_json" "$summary_path"
+
+        echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+        echo "summary-path=$summary_path" >> "$GITHUB_OUTPUT"
+        echo "AI review verdict: $verdict (summary → $summary_path)"
