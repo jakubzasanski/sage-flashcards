@@ -42,7 +42,7 @@
   - Tradeoff: `pull_request_target` is a known footgun — one accidental checkout/`npm ci` of PR head reopens the hole; must never run PR-controlled code with the secret in scope.
   - Confidence: MED — correct but easy to regress.
   - Blind spot: Need to ensure `npm ci` runs against the base lockfile/code, not PR head.
-- **Decision**: PENDING
+- **Decision**: RESOLVED in Phase 4 (commit 9ad3501) — verified closed in reviews/impl-review-phase-4.md (two-phase pull_request → workflow_run isolates the secret).
 
 ### F1 — Malformed model output crashes the job instead of degrading
 
