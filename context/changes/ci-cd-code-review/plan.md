@@ -205,13 +205,13 @@ Manual GitHub setup required before the Phase 3 PR run:
 
 #### Automated
 
-- [ ] 1.1 Typecheck passes: `npm run --prefix packages/code-reviewer typecheck`
-- [ ] 1.2 `review:sample` prints valid JSON with all six criteria including `documentation`
-- [ ] 1.3 `REVIEW_FAIL_ON_VERDICT=1` exits non-zero (code 2) on fail; exit 0 otherwise
+- [x] 1.1 Typecheck passes: `npm run --prefix packages/code-reviewer typecheck`
+- [x] 1.2 `review:sample` prints valid JSON with all six criteria including `documentation`
+- [x] 1.3 `REVIEW_FAIL_ON_VERDICT=1` exits non-zero (code 2) on fail; exit 0 otherwise
 
 #### Manual
 
-- [ ] 1.4 Run with `PR_TITLE`/`PR_BODY` reflects PR intent in `summary`
+- [x] 1.4 Run with `PR_TITLE`/`PR_BODY` reflects PR intent in `summary`
 - [ ] 1.5 `REVIEW_MODEL` switches the model (observable in usage/logs)
 
 ### Phase 2: Composite action .github/actions/ai-review/
