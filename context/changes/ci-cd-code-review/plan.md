@@ -229,8 +229,8 @@ Manual GitHub setup required before the Phase 3 PR run:
 
 #### Automated
 
-- [x] 3.1 `review.yml` valid YAML; `actionlint` (if available) passes — actionlint not installed; YAML validated
-- [x] 3.2 Action path `./.github/actions/ai-review` resolves
+- [x] 3.1 `review.yml` valid YAML; `actionlint` (if available) passes — actionlint not installed; YAML validated — 6964c39
+- [x] 3.2 Action path `./.github/actions/ai-review` resolves — 6964c39
 
 #### Manual
 
