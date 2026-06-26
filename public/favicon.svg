@@ -1,11 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Sage Flashcards">
   <defs>
-    <linearGradient id="sageGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#84B673" />
-      <stop offset="1" stop-color="#4E7C4D" />
+    <linearGradient id="lg" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#a6d68d" />
+      <stop offset="0.52" stop-color="#5f9a53" />
+      <stop offset="1" stop-color="#3a6739" />
+    </linearGradient>
+    <linearGradient id="lgDeep" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4e7c4d" />
+      <stop offset="1" stop-color="#2c5130" />
     </linearGradient>
   </defs>
-  <path d="M18 3C28 9 30 23 18 33 6 23 8 9 18 3Z" fill="url(#sageGrad)" />
-  <path d="M18 8C16.2 16 16.2 24 18 30" stroke="#fff" stroke-opacity=".82" stroke-width="1.5" stroke-linecap="round" fill="none" />
-  <path d="M18 14c1.8 0 3.4-.8 4.6-2.2M18 20c-1.8 0-3.4-.8-4.6-2.2" stroke="#fff" stroke-opacity=".55" stroke-width="1.3" stroke-linecap="round" fill="none" />
+  <!-- back leaf (darker, gives depth without a shadow halo on transparent) -->
+  <g transform="translate(8,6) rotate(18 48 48) scale(0.78)">
+    <path d="M34 84C18 60 24 26 70 14 70 44 60 74 34 84Z" fill="url(#lgDeep)" />
+  </g>
+  <!-- front leaf with delicate midrib -->
+  <g transform="translate(-4,2) rotate(-8 48 48) scale(0.92)">
+    <path d="M34 84C18 60 24 26 70 14 70 44 60 74 34 84Z" fill="url(#lg)" />
+    <path d="M34 84C44 60 56 36 68 18" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1.4" stroke-linecap="round" />
+  </g>
 </svg>

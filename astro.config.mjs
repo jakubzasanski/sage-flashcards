@@ -21,7 +21,7 @@ logger.warn = (msg, options) => {
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://10x-cards.bdfuh4vy77s3rwqi.workers.dev",
+  site: "https://sage-flashcards.zasanski.workers.dev",
   output: "server",
   compressHTML: true,
   integrations: [react(), sitemap()],

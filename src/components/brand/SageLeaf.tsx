@@ -5,35 +5,39 @@ interface SageLeafProps {
   className?: string;
 }
 
-// React form of the Sage leaf mark (for use inside React islands). Mirrors
-// SageLeaf.astro; `useId()` keeps the gradient id unique per instance.
+// React form of the Sage mark (for use inside React islands). Mirrors
+// SageLeaf.astro — two curved leaves with a delicate midrib; `useId()` keeps
+// the gradient ids unique per instance.
 export function SageLeaf({ size = 30, className }: SageLeafProps) {
-  const gradId = useId();
+  const lg = useId();
+  const deep = useId();
   return (
-    <svg width={size} height={size} viewBox="0 0 36 36" aria-hidden="true" className={className}>
+    <svg width={size} height={size} viewBox="0 0 96 96" aria-hidden="true" className={className}>
       <defs>
-        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#84B673" />
-          <stop offset="1" stopColor="#4E7C4D" />
+        <linearGradient id={lg} x1="0.1" y1="0" x2="0.9" y2="1">
+          <stop offset="0" stopColor="#a6d68d" />
+          <stop offset="0.52" stopColor="#5f9a53" />
+          <stop offset="1" stopColor="#3a6739" />
+        </linearGradient>
+        <linearGradient id={deep} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#4e7c4d" />
+          <stop offset="1" stopColor="#2c5130" />
         </linearGradient>
       </defs>
-      <path d="M18 3C28 9 30 23 18 33 6 23 8 9 18 3Z" fill={`url(#${gradId})`} />
-      <path
-        d="M18 8C16.2 16 16.2 24 18 30"
-        stroke="#fff"
-        strokeOpacity=".82"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <path
-        d="M18 14c1.8 0 3.4-.8 4.6-2.2M18 20c-1.8 0-3.4-.8-4.6-2.2"
-        stroke="#fff"
-        strokeOpacity=".55"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-        fill="none"
-      />
+      <g transform="translate(8,6) rotate(18 48 48) scale(0.78)">
+        <path d="M34 84C18 60 24 26 70 14 70 44 60 74 34 84Z" fill={`url(#${deep})`} />
+      </g>
+      <g transform="translate(-4,2) rotate(-8 48 48) scale(0.92)">
+        <path d="M34 84C18 60 24 26 70 14 70 44 60 74 34 84Z" fill={`url(#${lg})`} />
+        <path
+          d="M34 84C44 60 56 36 68 18"
+          stroke="#fff"
+          strokeOpacity="0.6"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </g>
     </svg>
   );
 }
