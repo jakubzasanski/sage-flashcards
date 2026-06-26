@@ -283,8 +283,8 @@ Manual GitHub setup required before the Phase 3 PR run:
 
 #### Automated
 
-- [x] 4.1 `review.yml` no `secrets.`/no local action, `permissions: contents: read` only; both workflows valid YAML
-- [x] 4.2 `review-run.yml` triggers on `workflow_run`, uses the secret, downloads artifact, POSTs commit status
+- [x] 4.1 `review.yml` no `secrets.`/no local action, `permissions: contents: read` only; both workflows valid YAML — 9ad3501
+- [x] 4.2 `review-run.yml` triggers on `workflow_run`, uses the secret, downloads artifact, POSTs commit status — 9ad3501
 
 #### Manual
 
