@@ -7,9 +7,14 @@ import { version } from "../../package.json";
 
 interface Props {
   title?: string;
+  description?: string;
 }
 
-const { title = "Sage Flashcards" } = Astro.props;
+const {
+  title = "Sage Flashcards",
+  description = "Paste your notes, let AI draft flashcards, and review them on a spaced-repetition schedule.",
+} = Astro.props;
+const ogImage = Astro.site ? new URL("/og-image.png", Astro.site).toString() : "/og-image.png";
 const locale = Astro.locals.locale;
 const year = new Date().getFullYear();
 ---
@@ -21,7 +26,17 @@ const year = new Date().getFullYear();
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#6ba06a" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
     {/* Apply the theme before first paint to avoid a flash of the wrong theme. */}
     <script is:inline>
       (function () {

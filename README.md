@@ -1,174 +1,138 @@
-# 10x Astro Starter
+<div align="center">
 
-![](./public/template.png)
+<img src="./public/favicon.svg" width="88" alt="Sage Flashcards" />
 
-A modern, opinionated starter template for building fast, accessible web applications.
+# Sage Flashcards
 
-## Tech Stack
+**Paste your notes, let AI draft flashcards, and review them on a spaced-repetition schedule.**
 
-- [Astro](https://astro.build/) v6 - Modern web framework with server-first rendering
-- [React](https://react.dev/) v19 - UI library for interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4 - Utility-first CSS framework
-- [Supabase](https://supabase.com/) - Authentication and backend-as-a-service
-- [Cloudflare Workers](https://workers.cloudflare.com/) - Edge deployment runtime
+[![CI](https://github.com/jakubzasanski/sage-flashcards/actions/workflows/ci.yml/badge.svg)](https://github.com/jakubzasanski/sage-flashcards/actions/workflows/ci.yml)
+[![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)](https://astro.build/)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 
-## Prerequisites
+[Live app](https://sage-flashcards.zasanski.workers.dev)
 
-- Node.js v24 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+<img src="./public/screenshot.png" alt="Sage Flashcards landing page" width="800" />
 
-## Getting Started
+</div>
 
-1. Clone the repository:
+## What it does
+
+Sage turns raw study material into a reviewable deck and helps you remember it:
+
+- **AI generation** — paste a passage and Sage drafts question/answer flashcards from it.
+- **Accept / reject / edit review** — you decide which candidates make the cut before anything is saved; the in-progress review session survives a page refresh.
+- **Spaced repetition** — saved cards are scheduled with [FSRS](https://github.com/open-spaced-repetition/ts-fsrs) so reviews are timed to beat forgetting.
+- **Accounts & auth** — email/password sign-in, sign-up, and self-serve password reset, backed by Supabase with cookie-based SSR sessions.
+- **Bilingual UI** — English and Polish, resolved server-side (no flash).
+
+## Tech stack
+
+| Layer | Choice |
+| --- | --- |
+| Framework | [Astro 7](https://astro.build/) — full SSR (`output: "server"`) |
+| Interactivity | [React 19](https://react.dev/) islands |
+| Styling | [Tailwind CSS 4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) (new-york) |
+| Auth & data | [Supabase](https://supabase.com/) (`@supabase/ssr`, RLS) |
+| Scheduling | [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs) |
+| Hosting | [Cloudflare Workers](https://workers.cloudflare.com/) (`@astrojs/cloudflare`) |
+| Language | [TypeScript](https://www.typescriptlang.org/) · Node 24 |
+
+## Getting started
+
+**Prerequisites:** Node.js v24 (see `.nvmrc`), npm, and [Docker](https://www.docker.com/) for local Supabase.
 
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+# 1. Clone
+git clone https://github.com/jakubzasanski/sage-flashcards.git
+cd sage-flashcards
 
-2. Install dependencies:
-
-```bash
+# 2. Install
 npm install
-```
 
-3. Set up Supabase and configure environment variables — see [Supabase Configuration](#supabase-configuration) below.
+# 3. Start local Supabase (requires Docker)
+npx supabase start
 
-4. Create a `.dev.vars` file for local Cloudflare dev secrets:
+# 4. Configure env — copy and fill in the values printed by `supabase start`
+cp .env.example .dev.vars   # Cloudflare local dev (or .env for plain Node)
 
-```bash
-cp .env.example .dev.vars
-```
-
-5. Run the development server:
-
-```bash
+# 5. Run the dev server (Cloudflare workerd runtime)
 npm run dev
 ```
 
-## Available Scripts
+The app runs at **http://localhost:4321**.
 
-- `npm run dev` - Start development server (Cloudflare workerd runtime)
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint with type-checked rules
-- `npm run lint:fix` - Auto-fix ESLint issues
-- `npm run format` - Run Prettier
+### Environment variables
 
-## Project Structure
+Declared in `astro.config.mjs` (`astro:env/server`) and read as Worker secrets in production:
 
-```md
-.
-├── src/
-│ ├── layouts/ # Astro layouts
-│ ├── pages/ # Astro pages
-│ │ └── api/ # API endpoints
-│ ├── components/ # UI components (Astro & React)
-│ └── assets/ # Static assets
-├── public/ # Public assets
-├── wrangler.jsonc # Cloudflare Workers config
-```
+| Variable | Required | Description |
+| --- | --- | --- |
+| `SUPABASE_URL` | yes | Supabase project URL (`https://<ref>.supabase.co`, or local `http://127.0.0.1:54321`) |
+| `SUPABASE_KEY` | yes | Supabase **publishable / anon** key (public, client-side safe — never the secret key) |
+| `LLM_API_KEY` | yes | API key for the OpenAI-compatible chat-completions endpoint |
+| `LLM_BASE_URL` | no | LLM base URL (default `https://api.openai.com/v1`) |
+| `LLM_MODEL` | no | Model id (default `gpt-5-mini`) |
 
-## Supabase Configuration
+## Scripts
 
-This project uses [Supabase](https://supabase.com/) for authentication. Environment variables are declared via Astro's `astro:env` schema and are treated as **server-only secrets** — they are never exposed to the client.
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Dev server (Cloudflare workerd runtime) |
+| `npm run build` | Production SSR build |
+| `npm run preview` | Preview the production build |
+| `npm run lint` / `lint:fix` | ESLint (type-checked) |
+| `npm run format` | Prettier (+ astro & tailwind plugins) |
+| `npm test` / `test:watch` | Unit tests (Vitest) |
+| `npm run test:integration` | Integration tests (Vitest — needs local Supabase) |
+| `npm run test:e2e` | End-to-end tests (Playwright — builds + previews, needs local Supabase) |
 
-### First-time setup (local, no cloud project needed)
+> Run `npx astro sync` after `npm install` or after editing `env.schema` to regenerate Astro's generated types.
 
-Requires [Docker](https://www.docker.com/) and ~7 GB RAM.
+## Testing
 
-1. Create your `.env` file:
+- **Unit** (`vitest --project unit`) — pure logic, Docker-free.
+- **Integration** (`vitest --project integration`) — real local Supabase (auth, PostgREST, RLS).
+- **E2E** (`playwright test`) — drives a production preview build against local Supabase + Mailpit; see `tests/e2e/CLAUDE.md` for the conventions every spec follows and `tests/e2e/seed.spec.ts` for the exemplar.
+- **Mutation** — [Stryker](https://stryker-mutator.io/) is configured for spot-checking test strength.
 
-```bash
-cp .env.example .env
-```
-
-2. Initialize the local Supabase project (creates a `supabase/` config folder):
-
-```bash
-npx supabase init
-```
-
-3. Start the local stack (downloads Docker images on first run):
-
-```bash
-npx supabase start
-```
-
-4. Copy the credentials printed by the CLI into your `.env` and `.dev.vars`:
+## Project structure
 
 ```
-SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_KEY=<anon key from CLI output>
+src/
+  components/      React islands (auth, generation, ui/) + Astro components
+  layouts/         Shared page shells
+  lib/             Supabase client, services, helpers
+  pages/           Routes — incl. api/auth/* endpoints
+  middleware.ts    Auth resolution + route protection (PROTECTED_ROUTES)
+  i18n/            en / pl strings
+supabase/migrations/   SQL migrations (RLS-enabled)
+tests/                 unit · integration · e2e
+context/               Project knowledge base (foundation, changes, archive)
 ```
 
-5. To stop the stack when done:
-
-```bash
-npx supabase stop
-```
-
-The local Studio UI is available at `http://localhost:54323`.
-
-No database tables or migrations are required — this project uses Supabase Auth's built-in `auth.users` table only.
-
-### Using a cloud Supabase project instead
-
-If you prefer to use a hosted Supabase project, add these variables to your `.env` and `.dev.vars` files:
-
-| Variable       | Description                                                |
-| -------------- | ---------------------------------------------------------- |
-| `SUPABASE_URL` | Project URL from Supabase dashboard → Settings → API       |
-| `SUPABASE_KEY` | `anon` public key from Supabase dashboard → Settings → API |
-
-```
-SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_KEY=<anon-key>
-```
-
-### Email confirmation in local development
-
-By default Supabase requires email confirmation before a user can sign in. To skip this during local development:
-
-1. Open the Supabase dashboard for your project
-2. Go to **Authentication → Email → Confirm email**
-3. Toggle it **off**
-
-Users can then sign in immediately after sign-up without clicking a confirmation link.
-
-### Auth routes
-
-| Route                 | Description                                                             |
-| --------------------- | ----------------------------------------------------------------------- |
-| `/auth/signin`        | Email/password sign-in form                                             |
-| `/auth/signup`        | Email/password sign-up form                                             |
-| `/auth/confirm-email` | Post-signup "check your inbox" page                                     |
-| `/dashboard`          | Example protected page (redirects to `/auth/signin` if unauthenticated) |
-
-Route protection is handled in `src/middleware.ts`. Add paths to the `PROTECTED_ROUTES` array there to require authentication.
+Path alias: `@/*` → `./src/*`. See `CLAUDE.md` for full conventions.
 
 ## Deployment
 
-This project deploys to [Cloudflare Workers](https://workers.cloudflare.com/).
-
-1. Build the project:
+Deployed to **Cloudflare Workers**.
 
 ```bash
 npm run build
-```
-
-2. Deploy with Wrangler:
-
-```bash
 npx wrangler deploy
 ```
 
-Set `SUPABASE_URL` and `SUPABASE_KEY` as secrets in your Cloudflare dashboard or via `npx wrangler secret put`.
+Push runtime secrets to the Worker (they are not committed):
 
-## CI
+```bash
+npx wrangler secret put SUPABASE_URL
+npx wrangler secret put SUPABASE_KEY
+npx wrangler secret put LLM_API_KEY
+# LLM_BASE_URL / LLM_MODEL only if overriding the defaults
+```
 
-GitHub Actions runs lint + build on every push and PR to `master`. Configure `SUPABASE_URL` and `SUPABASE_KEY` as repository secrets in GitHub for the build step.
+A staged CI/CD automation plan (full test pyramid, migrate→deploy pipeline, release automation, Dependabot) lives in [`context/foundation/ci-automation-roadmap.md`](./context/foundation/ci-automation-roadmap.md).
 
 ## License
 

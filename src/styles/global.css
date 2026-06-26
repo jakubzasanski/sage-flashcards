@@ -245,6 +245,10 @@
     letter-spacing: -0.01em;
     color: var(--text);
   }
+  /* "Sage" in the wordmark picks up the brand accent (matches the og card). */
+  .brand .wordmark .wm-sage {
+    color: var(--primary);
+  }
   .app-nav {
     display: flex;
     gap: 4px;
@@ -1300,6 +1304,7 @@
   }
   .hero h1 .accent {
     color: var(--accent-deep);
+    font-style: italic;
   }
   .hero p.lede {
     font-size: clamp(1.05rem, 2.4vw, 1.25rem);
