@@ -1,0 +1,50 @@
+name: Dependabot auto-merge
+
+# Auto-approve + enable squash auto-merge for SAFE Dependabot PRs only.
+#
+# SAFETY MODEL — read before relying on this:
+#   `gh pr merge --auto` only *defers* the merge if `master` has a required
+#   status check (or a merge queue). With NO required check, it merges as soon
+#   as the PR is mergeable. So this workflow is only safe once roadmap slice
+#   S-02 (release-automation) makes lint-unit-build + integration + e2e REQUIRED
+#   on master. Until then it can be committed but MUST NOT be relied upon.
+#   See context/changes/dependency-automation/plan.md → Phase 2 prerequisite.
+#
+# Also requires: repo Settings → General → "Allow auto-merge" enabled.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Dependabot-triggered runs get a read-only token by default; grant exactly the
+# scopes needed to approve and merge.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Fetch Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      # Safe set, matched against the groups defined in .github/dependabot.yml:
+      #   - dev-dependencies group (dev minor+patch) — always safe
+      #   - actions group (github-actions minor+patch) — always safe
+      #   - any patch update-type — covers prod patches (incl. a patch-only
+      #     production-minor-patch group PR) and any ungrouped patch
+      # Everything else (prod minors, all majors) falls through to manual review.
+      - name: Enable auto-merge for safe updates
+        if: >-
+          steps.meta.outputs.dependency-group == 'dev-dependencies' ||
+          steps.meta.outputs.dependency-group == 'actions' ||
+          steps.meta.outputs.update-type == 'version-update:semver-patch'
+        run: |
+          gh pr review --approve "$PR_URL"
+          gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ github.token }}
