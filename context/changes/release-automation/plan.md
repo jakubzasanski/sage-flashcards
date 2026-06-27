@@ -270,23 +270,23 @@ Negligible — adds a lightweight PR-title job and a release-please job (runs on
 
 #### Automated
 
-- [x] 1.1 `npm run lint` passes (config file lint-clean)
-- [x] 1.2 `npx commitlint --version` resolves (deps installed)
-- [x] 1.3 Non-conventional message rejected by commitlint (non-zero exit)
-- [x] 1.4 Conventional message passes commitlint (zero exit)
-- [x] 1.5 `pr-title.yml` parses (actionlint / CI)
+- [x] 1.1 `npm run lint` passes (config file lint-clean) — 583c868
+- [x] 1.2 `npx commitlint --version` resolves (deps installed) — 583c868
+- [x] 1.3 Non-conventional message rejected by commitlint (non-zero exit) — 583c868
+- [x] 1.4 Conventional message passes commitlint (zero exit) — 583c868
+- [x] 1.5 `pr-title.yml` parses (actionlint / CI) — 583c868
 
 #### Manual
 
-- [x] 1.6 Local commit with non-conventional message blocked by `commit-msg` hook
+- [x] 1.6 Local commit with non-conventional message blocked by `commit-msg` hook — 583c868
 - [ ] 1.7 PR with non-conventional title shows `pr-title` red; fixing title turns it green
 
 ### Phase 2: release-please (version bump + changelog + release)
 
 #### Automated
 
-- [ ] 2.1 `release-please-config.json` + `.release-please-manifest.json` valid JSON
-- [ ] 2.2 `release-please.yml` parses (actionlint / CI)
+- [x] 2.1 `release-please-config.json` + `.release-please-manifest.json` valid JSON
+- [x] 2.2 `release-please.yml` parses (actionlint / CI)
 - [ ] 2.3 release-please dry run reports a `1.2.0` candidate aggregating commits since `v1.1.0`
 
 #### Manual

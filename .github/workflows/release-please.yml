@@ -1,0 +1,32 @@
+name: release-please
+
+# On every push to master, release-please opens/updates a "release PR" that
+# aggregates Conventional Commits since the last release tag (v1.1.0), bumping the
+# version + regenerating CHANGELOG.md. Merging that release PR tags the version and
+# cuts a GitHub Release. Config lives in release-please-config.json +
+# .release-please-manifest.json (seeded at the current 1.1.0).
+
+on:
+  push:
+    branches: [master]
+
+# Avoid overlapping runs racing to update the same release PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+# release-please needs to create/update the release PR (+ branch) and, on merge,
+# push the tag and create the Release.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
