@@ -3,7 +3,7 @@ project: Sage Flashcards — CI/CD & Automation
 version: 1
 status: active
 created: 2026-06-25
-updated: 2026-06-26
+updated: 2026-06-27
 source: ci-automation research workflow (2026-06-25) + repo audit (2026-06-26) — NOT a product PRD
 main_goal: quality
 top_blocker: external
@@ -25,15 +25,15 @@ Turn a repo with a single `lint + unit + build` CI job and fully-manual deploys 
 
 ## At a glance
 
-| ID   | Change ID                   | Outcome                                                        | Prerequisites      | Refs            | Status   |
-| ---- | --------------------------- | ------------------------------------------------------------- | ------------------ | --------------- | -------- |
-| S-00 | phase-0-rebrand             | repo/app rebranded to Sage Flashcards                         | —                  | #7, rename      | done     |
-| F-01 | live-cutover-sage-worker    | (foundation) live cutover: renamed Worker + Supabase URLs + GitHub brand surfaces | S-00     | rename, #7      | done     |
-| S-01 | ci-test-pyramid             | full test pyramid runs on every PR and gates merges           | —                  | #1              | done     |
-| S-02 | release-automation          | branch-per-change + auto version bump + changelog on merge    | S-01               | #3, #4, #5      | proposed |
-| S-03 | cd-migrate-and-deploy       | merges to master ship Supabase migrations → Cloudflare Worker | S-01, F-01, (S-02) | #2              | blocked  |
-| S-04 | dependency-automation       | dependency PRs open automatically and safe ones auto-merge    | S-01, S-02         | #6              | proposed |
-| S-05 | extra-ci-tooling            | security scan + coverage + preview deploys + mutation cron    | S-01               | "co jeszcze"    | proposed |
+| ID   | Change ID                | Outcome                                                                           | Prerequisites      | Refs         | Status   |
+| ---- | ------------------------ | --------------------------------------------------------------------------------- | ------------------ | ------------ | -------- |
+| S-00 | phase-0-rebrand          | repo/app rebranded to Sage Flashcards                                             | —                  | #7, rename   | done     |
+| F-01 | live-cutover-sage-worker | (foundation) live cutover: renamed Worker + Supabase URLs + GitHub brand surfaces | S-00               | rename, #7   | done     |
+| S-01 | ci-test-pyramid          | full test pyramid runs on every PR and gates merges                               | —                  | #1           | done     |
+| S-02 | release-automation       | branch-per-change + auto version bump + changelog on merge                        | S-01               | #3, #4, #5   | done     |
+| S-03 | cd-migrate-and-deploy    | merges to master ship Supabase migrations → Cloudflare Worker                     | S-01, F-01, (S-02) | #2           | blocked  |
+| S-04 | dependency-automation    | dependency PRs open automatically and safe ones auto-merge                        | S-01, S-02         | #6           | proposed |
+| S-05 | extra-ci-tooling         | security scan + coverage + preview deploys + mutation cron                        | S-01               | "co jeszcze" | proposed |
 
 <sub>S-00 (rebrand) merged via **PR #4** (884d8ed). F-01 (live cutover) completed — renamed Worker deployed with secrets + SESSION KV, old Worker removed, Supabase Auth URLs updated, GitHub social-preview + avatar set.</sub>
 
@@ -41,18 +41,18 @@ Turn a repo with a single `lint + unit + build` CI job and fully-manual deploys 
 
 Navigation aid — groups items sharing a Prerequisites chain. Canonical order lives in the dependency graph below.
 
-| Stream | Theme                | Chain                                  | Note                                                            |
-| ------ | -------------------- | -------------------------------------- | -------------------------------------------------------------- |
-| A      | Gates & releases     | `S-01` → `S-02` → `S-04`               | The quality spine; each step needs the green CI signal from S-01. |
-| B      | Delivery             | `F-01` → `S-03`                        | Live cutover unblocks CD; S-03 also gates on S-01 (green CI).   |
-| C      | Hardening            | `S-05`                                 | Parallel with Stream A once S-01 lands.                         |
+| Stream | Theme            | Chain                    | Note                                                              |
+| ------ | ---------------- | ------------------------ | ----------------------------------------------------------------- |
+| A      | Gates & releases | `S-01` → `S-02` → `S-04` | The quality spine; each step needs the green CI signal from S-01. |
+| B      | Delivery         | `F-01` → `S-03`          | Live cutover unblocks CD; S-03 also gates on S-01 (green CI).     |
+| C      | Hardening        | `S-05`                   | Parallel with Stream A once S-01 lands.                           |
 
 ## Baseline
 
 What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices below assume these and do not redo them.
 
 - **App / rebrand:** ✅ present — Sage Flashcards rename, logo, favicon/og/PWA icons, README, manifest all in-repo (PR #4).
-- **CI:** ✅ full pyramid (S-01 done, 2026-06-27) — `ci.yml` runs `lint-unit-build` + `integration` + `e2e` (concurrency-cancel, Playwright cache, failure-only artifacts); e2e recipe extracted to a reusable `e2e.yml` (`workflow_call`) shared with a `nightly-e2e.yml` cron. On `feat/ci-test-pyramid` (PR #7), pipeline green; not yet making the checks *required* (that's S-02).
+- **CI:** ✅ full pyramid (S-01 done, 2026-06-27) — `ci.yml` runs `lint-unit-build` + `integration` + `e2e` (concurrency-cancel, Playwright cache, failure-only artifacts); e2e recipe extracted to a reusable `e2e.yml` (`workflow_call`) shared with a `nightly-e2e.yml` cron. On `feat/ci-test-pyramid` (PR #7), pipeline green; not yet making the checks _required_ (that's S-02).
 - **CD:** ⬜ absent — Supabase migrations + `wrangler deploy` are manual; no `deploy.yml`.
 - **Release / versioning:** ⬜ absent — no release-please / changelog / commitlint / branch protection.
 - **Dependency automation:** ⬜ absent — no `.github/dependabot.yml` (only a draft inside the old plan doc).
@@ -66,7 +66,7 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 - **Outcome:** (foundation) the renamed `sage-flashcards` Worker is live with its 5 secrets + SESSION KV; the old `10x-cards` Worker is deleted; Supabase Auth Site/Redirect URLs point at the new origin; `og-image.png` + avatar uploaded to GitHub.
 - **Change ID:** live-cutover-sage-worker
 - **Refs:** rename (D2), ask #7
-- **Unlocks:** S-03 (CD must deploy the *new* Worker with secrets/KV already provisioned); the live production app on the new URL.
+- **Unlocks:** S-03 (CD must deploy the _new_ Worker with secrets/KV already provisioned); the live production app on the new URL.
 - **Prerequisites:** S-00 (in-repo rename — merged via PR #4)
 - **Parallel with:** S-01
 - **Blockers:** — (cutover completed)
@@ -102,7 +102,8 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
   - Required approvals = 0 (solo) or 1? — Owner: user. Block: no.
 - **Risk:** branch protection can only require a check that already runs (S-01); squash-merge is required so release-please reads exactly one conventional commit per merge.
 - **Required-checks note:** the ruleset's required status checks should list the S-01 jobs (`lint-unit-build`, `integration`, `e2e`) **and** the `AI Code Review` commit status published by the existing ci-cd-code-review pipeline (`review-run.yml`) — it's a `workflow_run` job not attached to the PR's checks, so it surfaces only as a commit status. Decide whether AI review is a hard gate or advisory before requiring it.
-- **Status:** proposed
+- **As shipped (2026-06-27):** required checks = `lint-unit-build` / `integration` / **`e2e / e2e`** (reusable-workflow check name) / `pr-title`; `AI Code Review` kept **advisory** (not required). release-please uses a **GitHub App token** (not `GITHUB_TOKEN`) so the Release PR triggers the required checks. Ruleset reproducible via `scripts/apply-ruleset.sh` + `.github/rulesets/master.json`. First auto-release: **v1.2.0**.
+- **Status:** done
 
 ### S-03: CD — Supabase migrations → Cloudflare Worker on green master
 
@@ -144,14 +145,14 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID                | Suggested issue title                                  | Ready for `/10x-plan` | Notes                                  |
-| ---------- | ------------------------ | ----------------------------------------------------- | --------------------- | -------------------------------------- |
-| F-01       | live-cutover-sage-worker | Live cutover: deploy renamed Worker + Supabase + brand| done                  | ✅ completed 2026-06-26                 |
-| S-01       | ci-test-pyramid          | CI: full test pyramid gating PRs                      | done                  | ✅ shipped 2026-06-27 (PR #7)           |
-| S-02       | release-automation       | Branch protection + release-please + changelog         | after S-01            | —                                      |
-| S-03       | cd-migrate-and-deploy    | CD: migrate Supabase → deploy Worker on green master   | after S-01 + F-01     | needs production env secrets           |
-| S-04       | dependency-automation    | Dependabot + safe auto-merge                           | after S-01 + S-02     | —                                      |
-| S-05       | extra-ci-tooling         | CodeQL + coverage + preview deploys + Stryker cron     | after S-01            | additive; can split per tool           |
+| Roadmap ID | Change ID                | Suggested issue title                                  | Ready for `/10x-plan` | Notes                          |
+| ---------- | ------------------------ | ------------------------------------------------------ | --------------------- | ------------------------------ |
+| F-01       | live-cutover-sage-worker | Live cutover: deploy renamed Worker + Supabase + brand | done                  | ✅ completed 2026-06-26        |
+| S-01       | ci-test-pyramid          | CI: full test pyramid gating PRs                       | done                  | ✅ shipped 2026-06-27 (PR #7)  |
+| S-02       | release-automation       | Branch protection + release-please + changelog         | done                  | ✅ shipped 2026-06-27 (v1.2.0) |
+| S-03       | cd-migrate-and-deploy    | CD: migrate Supabase → deploy Worker on green master   | after S-01 + F-01     | needs production env secrets   |
+| S-04       | dependency-automation    | Dependabot + safe auto-merge                           | after S-01 + S-02     | —                              |
+| S-05       | extra-ci-tooling         | CodeQL + coverage + preview deploys + Stryker cron     | after S-01            | additive; can split per tool   |
 
 ## Open Roadmap Questions
 
@@ -170,3 +171,4 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 - **S-00: repo/app rebranded to Sage Flashcards** — Merged 2026-06-26 via PR #4 (`chore/rebrand-sage-flashcards`, 884d8ed). Names → `sage-flashcards`, two-leaf logo everywhere, favicon/PWA/maskable icons, README, og-image, manifest.
 - **F-01: live cutover to the renamed Worker + Supabase + GitHub brand surfaces** — Completed 2026-06-26. Renamed Worker deployed (5 secrets + SESSION KV), old `10x-cards` Worker removed, Supabase Auth Site/Redirect URLs updated, GitHub social-preview + avatar set.
 - **S-01: full CI test pyramid gating every PR** — Implemented + impl_reviewed 2026-06-27 on `feat/ci-test-pyramid` (PR #7, pipeline green). `ci.yml` = `lint-unit-build` + `integration` + `e2e` (concurrency-cancel, Playwright cache, `permissions: contents: read`, failure-only artifacts); reusable `e2e.yml` (`workflow_call`) shared with `nightly-e2e.yml` cron. Three non-obvious fixes vs the plan: e2e needs local `SUPABASE_URL/KEY`; `supabase/setup-cli` pinned to the lockfile CLI (`2.107.0`) for config.toml parity; `.dev.vars` written in CI because `astro preview` on workerd ignores `process.env`. Checks exist but are **not yet required** (S-02). Awaiting merge → `/10x-archive`.
+- **S-02: branch protection + release-please + conventional-commit linting** — Archived 2026-06-27 → `context/archive/2026-06-27-release-automation/` (merged via PR #21/#22/#23; first auto-release **v1.2.0**). Shipped: commitlint + husky `commit-msg` + CI `pr-title` check; release-please (config/manifest seeded 1.1.0 + `release-please.yml`); active master ruleset (PR required, 0 approvals, squash-only, linear history, required checks `lint-unit-build`/`integration`/`e2e / e2e`/`pr-title`) + squash-only merge settings with `squash_merge_commit_title=PR_TITLE`, all reproducible via `scripts/apply-ruleset.sh`. Lessons: (1) reusable-workflow checks surface as `e2e / e2e`, so that exact string must be the required-check context; (2) release-please needs a **GitHub App token** (`actions/create-github-app-token`, secrets `RELEASE_PLEASE_APP_ID`/`RELEASE_PLEASE_APP_PRIVATE_KEY`) — a `GITHUB_TOKEN`-created Release PR doesn't trigger the required checks and would be unmergeable; (3) `AI Code Review` kept **advisory**, not a required check.
