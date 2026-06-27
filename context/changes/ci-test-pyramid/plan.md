@@ -193,7 +193,7 @@ Pure additive CI change; no app/runtime/data impact. The existing `build` step a
 #### Automated
 
 - [x] 1.1 Workflow YAML valid / parses on push — 97528c2
-- [ ] 1.2 `lint-unit-build` job runs and passes on a PR
+- [x] 1.2 `lint-unit-build` job runs and passes on a PR — 23b8cab
 
 #### Manual
 
@@ -203,7 +203,7 @@ Pure additive CI change; no app/runtime/data impact. The existing `build` step a
 
 #### Automated
 
-- [ ] 2.1 `integration` boots Supabase and `test:integration` passes in CI
+- [x] 2.1 `integration` boots Supabase and `test:integration` passes in CI — 23b8cab
 
 #### Manual
 
@@ -213,8 +213,8 @@ Pure additive CI change; no app/runtime/data impact. The existing `build` step a
 
 #### Automated
 
-- [ ] 3.1 `e2e` runs `test:e2e` green in CI
-- [ ] 3.2 On failure, `playwright-report` + `test-results` artifacts uploaded
+- [x] 3.1 `e2e` runs `test:e2e` green in CI — 23b8cab
+- [x] 3.2 On failure, `playwright-report` + `test-results` artifacts uploaded — 23b8cab
 
 #### Manual
 
