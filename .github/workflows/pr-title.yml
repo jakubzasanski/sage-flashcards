@@ -1,0 +1,22 @@
+name: PR Title
+
+# Lints the pull-request title against Conventional Commits. The repo squash-merges
+# with the PR title as the commit subject, so this title is exactly what
+# release-please parses to decide the version bump — keeping it valid here keeps the
+# release line correct.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+# Least privilege: the action only needs to read PR metadata.
+permissions:
+  pull-requests: read
+
+jobs:
+  pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
