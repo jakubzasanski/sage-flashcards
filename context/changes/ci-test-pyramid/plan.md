@@ -218,7 +218,7 @@ Pure additive CI change; no app/runtime/data impact. The existing `build` step a
 
 #### Manual
 
-- [ ] 3.3 Downloaded HTML report opens with traces — PARTIAL: traces verified (test-results/…/trace.zip downloaded from a failed run, opens in `npx playwright show-trace`); HTML report NOT generated in CI because playwright.config.ts uses the `github` reporter (annotations) not `html`. Producing it needs an `["github"],["html"]` reporter change — out of scope here (plan: no playwright.config changes). Future tweak.
+- [x] 3.3 Downloaded HTML report opens with traces — playwright.config.ts CI reporter now `[["github"],["html",{open:"never"}]]` so CI writes playwright-report/ (uploaded on failure by the e2e job); traces already verified (test-results/…/trace.zip opens in `npx playwright show-trace`). Full report download confirms on the next failed run. (Conscious scope addition beyond the original "no playwright.config changes".)
 - [x] 3.4 e2e flake rate acceptable across a few runs — green across PR runs 28283035289 + 28283542453 and nightly dispatch 28283947510; no retries needed
 
 ### Phase 4: Nightly e2e safety net
