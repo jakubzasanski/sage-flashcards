@@ -1,0 +1,60 @@
+# Dependabot configuration — roadmap slice S-04 (dependency-automation).
+# Opens grouped, risk-scoped update PRs weekly. Known-breaking majors are pinned
+# out (eslint stays on 9; astro/react are deliberate-upgrade-only). Auto-merge of
+# safe classes is handled by .github/workflows/dependabot-auto-merge.yml and is
+# only safe once S-02 branch protection makes the CI checks required.
+version: 2
+updates:
+  # ---- npm (application dependencies) ----
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+    # Conventional-commit prefix so S-02's release-please reads history cleanly.
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      # Dev-only deps: minor + patch roll up into one PR (auto-mergeable in S-04 P2).
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      # Runtime deps: minor + patch grouped, but kept manual-review in P2.
+      production-minor-patch:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+    # Hold framework/tooling majors that need a deliberate upgrade change.
+    # All OTHER majors still open as individual PRs for manual review.
+    ignore:
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "astro"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # ---- GitHub Actions ----
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      actions:
+        update-types:
+          - "minor"
+          - "patch"
