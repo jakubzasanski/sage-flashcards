@@ -225,7 +225,7 @@ Pure additive CI change; no app/runtime/data impact. The existing `build` step a
 
 #### Automated
 
-- [x] 4.1 `nightly-e2e.yml` parses and exposes a dispatch button
+- [x] 4.1 `nightly-e2e.yml` parses and exposes a dispatch button — 04aefa1
 
 #### Manual
 
