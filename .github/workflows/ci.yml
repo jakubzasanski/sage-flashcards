@@ -46,7 +46,7 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           # Pinned (not `latest`) for a deterministic merge gate — see e2e.yml.
-          version: 2.23.4
+          version: 2.107.0
       - run: supabase start
       - run: npm run test:integration
       - if: always()

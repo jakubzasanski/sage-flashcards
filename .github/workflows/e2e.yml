@@ -28,9 +28,10 @@ jobs:
       - run: npx astro sync
       - uses: supabase/setup-cli@v1
         with:
-          # Pinned (not `latest`) so a CLI release can't introduce a non-deterministic
-          # failure on the merge gate; tracks the `supabase` devDependency baseline.
-          version: 2.23.4
+          # Pinned (not `latest`) for a deterministic merge gate. Must match the
+          # `supabase` version resolved in package-lock.json (the CLI the project runs
+          # locally) — config.toml uses keys an older CLI rejects ('failed to parse config').
+          version: 2.107.0
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
