@@ -7,12 +7,14 @@
 > - Redeploy: w Claude Code podaj plik do narzędzia Artifact (ten sam URL przy redeployu w tej samej sesji).
 
 ## Slajd tytułowy
+
 - Sage Flashcards — „Wklej notatki. AI drafuje fiszki. Ucz się w rytmie powtórek."
 - Stack chips: Astro 7 · React 19 · Supabase · Cloudflare Workers
 - Live: sage-flashcards.zasanski.workers.dev
 - Motyw: odwracająca się fiszka (pytanie → odpowiedź)
 
 ## 01 — Biznesowo
+
 - **Problem:** profesjonaliści (dev/lekarz/prawnik) uczący się pod deadline wiedzą, że powtórki działają, ale ręczne tworzenie fiszek jest zbyt czasochłonne → rezygnują z najskuteczniejszej metody, gdy najbardziej jej potrzebują.
 - **Insight:** fiszki z AI przekroczyły próg „good enough" — kompromis „wolne ręczne vs. żadne" się odwrócił.
 - **Wartość:** próg wejścia z godzin do minut — wklej tekst, zaakceptuj karty, ucz się.
@@ -21,6 +23,7 @@
 - **Guardraile:** prywatność tekstu źródłowego (nie logowany, nie do treningu) · brak utraty danych (karty i sesja w toku przeżywają refresh).
 
 ## 02 — Produktowo
+
 - **Generacja AI** — wklejasz fragment, dostajesz kandydatów Q/A.
 - **Review accept / edit / reject** — decyzja per-kandydat; nic nie wchodzi do talii bez zapisu; sesja przeżywa refresh.
 - **Spaced repetition (FSRS)** — `ts-fsrs` v5 planuje powtórki przed zapomnieniem.
@@ -29,6 +32,7 @@
 - **Pełne SSR** — wszystkie strony na serwerze; trasy chronione middleware'em.
 
 ## 03 — Technologie
+
 - Framework: Astro 7, pełne SSR (`output: "server"`)
 - Interaktywność: React 19 (islands)
 - Styl: Tailwind CSS 4 + shadcn/ui (new-york), helper `cn()`
@@ -39,6 +43,7 @@
 - Jakość: ESLint 9 type-checked · Prettier · husky + lint-staged
 
 ## 04 — Infrastruktura
+
 - Cloudflare Workers (workerd), adapter `@astrojs/cloudflare` v14 (auto IMAGES + SESSION), Worker `sage-flashcards`
 - Supabase: Postgres + PostgREST + RLS; migracje w `supabase/migrations/`
 - Sekrety: `astro:env/server` → Worker secrets (`wrangler secret put`); nigdy w repo
@@ -46,17 +51,27 @@
 - Skala: mała, niski QPS — świadomie lean MVP
 
 ## 05 — Repo: automatyzacja, review, testy
+
 - **Piramida testów:** Unit (Vitest) · Integration (Vitest + Supabase, RLS) · E2E (Playwright + Mailpit) — wszystkie trzy gatekeepują PR; Mutation (Stryker) zainstalowany
 - **Workflow „10x":** plan → plan-review → implement → impl-review → archive; ślad decyzyjny w `context/`
 - **AI code-review na PR-ach** (`@sage/code-reviewer`, Codex SDK):
   - 6 kryteriów: poprawność, idiomatyczność, złożoność, pokrycie testami, dokumentacja, bezpieczeństwo → werdykt pass/fail
   - efekty: komentarz + etykieta `ai-cr:passed`/`ai-cr:failed` + commit status; re-run etykietą `ai-cr:review`; advisory
   - **izolacja sekretu (2 fazy):** producer `pull_request` bez sekretu (diff→artefakt) → consumer `workflow_run` z gałęzi domyślnej z sekretem; PR-autor nie wykradnie `OPENAI_API_KEY`
+- **Automatyczne wydania (release-please):**
+  - merge do master → bot otwiera „Release PR" z bumpem wersji (SemVer wyliczony z konwencjonalnych commitów) i wygenerowanym `CHANGELOG.md`; merge Release PR → tag `vX.Y.Z` + GitHub Release
+  - squash-only, tytuł PR = subject squash-commita = źródło decyzji o wersji
+  - Release PR tworzony tokenem **GitHub App** (nie `GITHUB_TOKEN`), żeby przechodził przez wszystkie required checki
+- **Branch protection (ruleset na master):** PR wymagany, squash-only, linear history, wymagane checki: lint+unit · integration · e2e · pr-title
+- **Conventional commits wymuszane dwustronnie:** lokalnie husky `commit-msg` (commitlint) + check tytułu PR w CI
+- **Dependabot:** automatycznie otwiera (grupowane) PR-y z aktualizacjami zależności — npm + GitHub Actions; bezpieczne aktualizacje przewidziane do auto-merge po zielonym CI
 
 ## Podsumowanie
+
 - Realny produkt z AI postawiony lean, z dyscypliną planowania, testów i automatycznego review na poziomie zespołowym.
 
 ## Backlog / pomysły do rozwoju
+
 - [ ] Wersja dark pod rzutnik
 - [ ] Zrzut ekranu appki na slajdzie produktowym (data-URI, bo CSP blokuje zewnętrzne zasoby)
 - [ ] Autor / nazwisko na slajdzie tytułowym

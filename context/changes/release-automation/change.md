@@ -1,7 +1,7 @@
 ---
 change_id: release-automation
 title: Branch protection + release-please + conventional-commit linting
-status: implementing
+status: implemented
 created: 2026-06-27
 updated: 2026-06-27
 archived_at: null

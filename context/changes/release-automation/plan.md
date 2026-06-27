@@ -279,7 +279,7 @@ Negligible — adds a lightweight PR-title job and a release-please job (runs on
 #### Manual
 
 - [x] 1.6 Local commit with non-conventional message blocked by `commit-msg` hook — 583c868
-- [ ] 1.7 PR with non-conventional title shows `pr-title` red; fixing title turns it green
+- [x] 1.7 PR with non-conventional title shows `pr-title` red; fixing title turns it green — 583c868
 
 ### Phase 2: release-please (version bump + changelog + release)
 
@@ -291,7 +291,7 @@ Negligible — adds a lightweight PR-title job and a release-please job (runs on
 
 #### Manual
 
-- [ ] 2.4 (Deferred to Phase 4 — proven end-to-end there)
+- [x] 2.4 (Deferred to Phase 4 — proven end-to-end there) — df48f35
 
 ### Phase 3: Branch-protection ruleset + repo merge settings
 
@@ -311,10 +311,10 @@ Negligible — adds a lightweight PR-title job and a release-please job (runs on
 
 #### Automated
 
-- [ ] 4.1 release-please PR (`chore(master): release 1.2.0`) appears after verification PR merges
-- [ ] 4.2 After Release PR merges: tag `v1.2.0`, GitHub Release, `package.json` = `1.2.0`, `CHANGELOG.md` present
+- [x] 4.1 release-please PR (`chore(master): release 1.2.0`) appears after verification PR merges — bf69a85
+- [x] 4.2 After Release PR merges: tag `v1.2.0`, GitHub Release, `package.json` = `1.2.0`, `CHANGELOG.md` present — df48f35
 
 #### Manual
 
-- [ ] 4.3 Non-conventional PR title observed failing `pr-title` during testing
-- [ ] 4.4 Generated `CHANGELOG.md` reads sensibly (feat/fix grouped)
+- [x] 4.3 Non-conventional PR title observed failing `pr-title` during testing — bf69a85
+- [x] 4.4 Generated `CHANGELOG.md` reads sensibly (feat/fix grouped) — df48f35
