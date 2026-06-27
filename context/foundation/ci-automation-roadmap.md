@@ -116,7 +116,8 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 - **Unknowns:**
   - Declare `kv_namespaces`/`images` bindings in `wrangler.jsonc` for non-interactive deploy — Owner: user/team. Block: yes (CI deploy hangs on interactive provisioning otherwise).
 - **Risk:** migrations are destructive + forward-only; deploy is fully automatic on green CI (D5), so rely on `db push --dry-run` + expand-then-contract + PITR. Migrate-before-deploy ordering is mandatory.
-- **Status:** blocked
+- **As implemented (2026-06-27, `feat/cd-migrate-and-deploy`):** `deploy.yml` gated via `workflow_run` on **CI** success for a `master` `push` (drops PRs/red runs), checks out the tested `head_sha`, then **build → `supabase db push` (dry-run logged first) → `wrangler secret bulk` → `wrangler deploy`**, scoped to a `production` environment. Build precedes migrate so a build failure aborts before any DB mutation. `wrangler.jsonc` now declares the `SESSION` KV (`14209e17…`) + `IMAGES` bindings for non-interactive deploy (the original blocking unknown). Failure policy: fail-loud, no auto-rollback (`wrangler rollback` for the Worker, Supabase PITR for the DB). Runbook: `context/deployment/deploy-plan.md` → "Continuous deployment (S-03)".
+- **Status:** blocked → **implemented on branch; awaiting the `production` GitHub environment + secrets and the first live deploy to flip to done**
 
 ### S-04: Dependency automation
 

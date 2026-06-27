@@ -1,0 +1,97 @@
+name: Deploy
+
+# CD — the deploy half of the pipeline. On a *successful* CI run for a *push to
+# master*, apply Supabase migrations then deploy the Worker. Gated via workflow_run
+# (not push) so it only ever fires after the required test pyramid in ci.yml goes
+# green — never on red, never on PRs, never on other branches. It deploys the exact
+# commit CI validated (head_sha), not whatever master points at by the time this runs.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+# Never cancel an in-flight production deploy — a half-applied migrate→deploy is worse
+# than waiting. Serializes deploys so two never race the same Worker/DB.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+# Least privilege: this workflow only reads the repo. Every write goes to Cloudflare
+# or Supabase via their own API tokens, never the GitHub token.
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # The load-bearing guard: only a green CI run, triggered by a push, on master.
+    # Drops PR runs, failed runs, and runs on any other branch.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'master' &&
+      github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    # Scopes the Cloudflare/Supabase credentials + runtime secrets below to a protected
+    # environment, so they are never exposed to PR or fork runs.
+    environment: production
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Deploy the exact commit CI validated, not the current branch tip — another
+          # push could have landed while CI was running.
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx astro sync
+
+      # Build BEFORE migrating: a build failure then aborts the run with the DB
+      # untouched, instead of leaving a migrated schema ahead of code that can't ship.
+      - name: Build
+        run: npm run build
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      # --- Migrate (must complete BEFORE deploy so new code never meets an old schema) ---
+      - uses: supabase/setup-cli@v1
+        with:
+          # Pinned (not `latest`) to match the `supabase` CLI in package-lock.json —
+          # config.toml uses keys an older CLI rejects. Mirrors ci.yml / e2e.yml.
+          version: 2.107.0
+      - name: Link Supabase project
+        run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+      - name: Migration dry-run (audit log of what will apply)
+        run: supabase db push --dry-run
+      - name: Apply migrations
+        run: supabase db push
+
+      # --- Sync runtime secrets to the Worker (GitHub is the source of truth) ---
+      # jq builds the JSON from env vars so secret values are never interpolated into
+      # the command text and get proper JSON escaping. Piped to `secret bulk` via stdin.
+      - name: Sync Worker secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+        run: |
+          jq -n \
+            --arg supabase_url "$SUPABASE_URL" \
+            --arg supabase_key "$SUPABASE_KEY" \
+            --arg llm_api_key "$LLM_API_KEY" \
+            --arg llm_base_url "$LLM_BASE_URL" \
+            --arg llm_model "$LLM_MODEL" \
+            '{SUPABASE_URL: $supabase_url, SUPABASE_KEY: $supabase_key, LLM_API_KEY: $llm_api_key, LLM_BASE_URL: $llm_base_url, LLM_MODEL: $llm_model}' \
+            | npx wrangler secret bulk
+
+      # --- Deploy ---
+      - name: Deploy Worker
+        run: npx wrangler deploy
