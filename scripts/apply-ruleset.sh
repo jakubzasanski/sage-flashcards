@@ -40,8 +40,17 @@ gh api -X PATCH "repos/$REPO" \
   -F delete_branch_on_merge=true >/dev/null
 
 # 3) Allow GitHub Actions (release-please) to create pull requests.
+#    The endpoint expects BOTH fields together, so read the current
+#    default_workflow_permissions and pass it through unchanged (only flipping the
+#    PR-creation flag). Sending can_approve_pull_request_reviews alone risks an
+#    error / silent reset on stricter API versions — and this runs after the
+#    ruleset + merge settings are already applied, so a failure here would leave a
+#    half-configured repo.
 echo "Allowing Actions to create pull requests ..."
+CUR_PERMS="$(gh api "repos/$REPO/actions/permissions/workflow" \
+  --jq '.default_workflow_permissions' 2>/dev/null || echo read)"
 gh api -X PUT "repos/$REPO/actions/permissions/workflow" \
+  -F "default_workflow_permissions=${CUR_PERMS:-read}" \
   -F can_approve_pull_request_reviews=true >/dev/null
 
 echo "Done. Current ruleset:"
