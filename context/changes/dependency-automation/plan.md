@@ -195,9 +195,9 @@ Negligible. The auto-merge workflow is a tiny metadata-read + a couple of `gh` c
 
 #### Manual
 
-- [ ] 1.3 Dependabot enabled in repo settings (one-time toggle)
-- [ ] 1.4 Dependabot tab shows config parsed with no validation errors
-- [ ] 1.5 Manual update check opens grouped PRs and no pinned-major (eslint/astro/react/react-dom) PRs
+- [x] 1.3 Dependabot enabled in repo settings (one-time toggle)
+- [x] 1.4 Dependabot tab shows config parsed with no validation errors
+- [x] 1.5 Manual update check opens grouped PRs and no pinned-major (eslint/astro/react/react-dom) PRs
 
 ### Phase 2: Safe auto-merge workflow
 
