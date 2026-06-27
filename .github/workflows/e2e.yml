@@ -1,0 +1,59 @@
+name: E2E (reusable)
+
+# Single source of truth for the e2e recipe, shared by the PR gate (ci.yml) and the
+# nightly safety net (nightly-e2e.yml) via `workflow_call`. The Supabase + Playwright
+# setup — and the local-env / pinned-CLI fixes below — therefore live in exactly one place.
+on:
+  workflow_call: {}
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    # The app under test (served by `astro preview`) reads SUPABASE_URL/SUPABASE_KEY from
+    # astro:env/server; with them unset, src/lib/supabase.ts createClient() returns null and
+    # auth is dead, so the whole suite fails. These are the well-known LOCAL demo values that
+    # `supabase start` reproduces deterministically (mirrors test/support/config.ts) — public,
+    # never production secrets — so they belong in the file, NOT in GitHub secrets (real prod
+    # secrets here would point the previewed app at production).
+    env:
+      SUPABASE_URL: http://127.0.0.1:54321
+      SUPABASE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx astro sync
+      - uses: supabase/setup-cli@v1
+        with:
+          # Pinned (not `latest`) so a CLI release can't introduce a non-deterministic
+          # failure on the merge gate; tracks the `supabase` devDependency baseline.
+          version: 2.23.4
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --with-deps chromium
+      - run: supabase start
+      - run: npm run test:e2e
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: ignore
+      - name: Upload Playwright traces
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: ignore
+      - if: always()
+        run: supabase stop

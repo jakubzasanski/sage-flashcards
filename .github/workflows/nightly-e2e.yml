@@ -1,8 +1,8 @@
 name: Nightly E2E
 
-# Early-warning net for e2e flake/regressions, separate from the PR gate. Runs the
-# same recipe as ci.yml's e2e job on a nightly cron and on manual dispatch. Scheduled
-# events run against master (the default branch).
+# Early-warning net for e2e flake/regressions, separate from the PR gate. Reuses the
+# exact e2e recipe from e2e.yml so there is no second copy to maintain. Scheduled events
+# run against master (the default branch).
 on:
   schedule:
     - cron: "0 3 * * *"
@@ -10,35 +10,4 @@ on:
 
 jobs:
   e2e:
-    runs-on: ubuntu-latest
-    # No SUPABASE_* env: runs against `supabase start`'s local demo stack via the
-    # hardcoded demo keys; Playwright owns build + preview through its webServer.
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npx astro sync
-      - uses: supabase/setup-cli@v1
-        with:
-          version: latest
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install --with-deps chromium
-      - run: supabase start
-      - run: npm run test:e2e
-      - name: Upload Playwright report
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 14
-          if-no-files-found: ignore
-      - if: always()
-        run: supabase stop
+    uses: ./.github/workflows/e2e.yml
