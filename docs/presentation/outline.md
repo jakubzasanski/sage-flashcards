@@ -46,14 +46,16 @@
 - Skala: mała, niski QPS — świadomie lean MVP
 
 ## 05 — Repo: automatyzacja, review, testy
-- **CI (`ci.yml`):** lint + test + build na każdy push/PR do `master`
-- **Piramida testów:** Unit (Vitest) · Integration (Vitest + Supabase, RLS) · E2E (Playwright + Mailpit) · Mutation (Stryker)
+- **CI (`ci.yml`) — pełna piramida na każdy push/PR do `master`:** `lint-unit-build` + `integration` (Vitest + `supabase start`) + `e2e` (Playwright + Mailpit); concurrency-cancel, cache Playwright, artefakty tylko przy porażce, `permissions: contents:read`
+  - recepta e2e wyniesiona do reusable workflow (`e2e.yml`, `workflow_call`) współdzielonego z nocnym `nightly-e2e.yml` (cron) — jedno źródło, zero duplikacji
+  - 3 niuanse, które zazieleniły gate: e2e potrzebuje lokalnych kluczy Supabase · `supabase/setup-cli` przypięty do wersji z lockfile (zgodność `config.toml`) · `.dev.vars` generowany w CI, bo `astro preview` na workerd ignoruje `process.env`
+- **Piramida testów:** Unit (Vitest) · Integration (Vitest + Supabase, RLS) · E2E (Playwright + Mailpit) — wszystkie trzy gatekeepują PR; Mutation (Stryker) zainstalowany, jeszcze nie w CI
 - **Workflow „10x":** plan → plan-review → implement → impl-review → archive; ślad decyzyjny w `context/`
 - **AI code-review na PR-ach** (`@sage/code-reviewer`, Codex SDK):
   - 6 kryteriów: poprawność, idiomatyczność, złożoność, pokrycie testami, dokumentacja, bezpieczeństwo → werdykt pass/fail
   - efekty: komentarz + etykieta `ai-cr:passed`/`ai-cr:failed` + commit status; re-run etykietą `ai-cr:review`; advisory
   - **izolacja sekretu (2 fazy):** producer `pull_request` bez sekretu (diff→artefakt) → consumer `workflow_run` z gałęzi domyślnej z sekretem; PR-autor nie wykradnie `OPENAI_API_KEY`
-- **Roadmapa CI/CD:** piramida testów → release-automation → CD migracje→deploy → Dependabot
+- **Roadmapa CI/CD:** ✅ piramida testów → release-automation → CD migracje→deploy → Dependabot
 
 ## Podsumowanie
 - Realny produkt z AI postawiony lean, z dyscypliną planowania, testów i automatycznego review na poziomie zespołowym.

@@ -29,7 +29,7 @@ Turn a repo with a single `lint + unit + build` CI job and fully-manual deploys 
 | ---- | --------------------------- | ------------------------------------------------------------- | ------------------ | --------------- | -------- |
 | S-00 | phase-0-rebrand             | repo/app rebranded to Sage Flashcards                         | —                  | #7, rename      | done     |
 | F-01 | live-cutover-sage-worker    | (foundation) live cutover: renamed Worker + Supabase URLs + GitHub brand surfaces | S-00     | rename, #7      | done     |
-| S-01 | ci-test-pyramid             | full test pyramid runs on every PR and gates merges           | —                  | #1              | ready    |
+| S-01 | ci-test-pyramid             | full test pyramid runs on every PR and gates merges           | —                  | #1              | done     |
 | S-02 | release-automation          | branch-per-change + auto version bump + changelog on merge    | S-01               | #3, #4, #5      | proposed |
 | S-03 | cd-migrate-and-deploy       | merges to master ship Supabase migrations → Cloudflare Worker | S-01, F-01, (S-02) | #2              | blocked  |
 | S-04 | dependency-automation       | dependency PRs open automatically and safe ones auto-merge    | S-01, S-02         | #6              | proposed |
@@ -52,11 +52,11 @@ Navigation aid — groups items sharing a Prerequisites chain. Canonical order l
 What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices below assume these and do not redo them.
 
 - **App / rebrand:** ✅ present — Sage Flashcards rename, logo, favicon/og/PWA icons, README, manifest all in-repo (PR #4).
-- **CI:** 🟡 partial — `.github/workflows/ci.yml` is one job: lint + `npm test` (unit) + build. No integration/e2e, no concurrency, no artifact upload.
+- **CI:** ✅ full pyramid (S-01 done, 2026-06-27) — `ci.yml` runs `lint-unit-build` + `integration` + `e2e` (concurrency-cancel, Playwright cache, failure-only artifacts); e2e recipe extracted to a reusable `e2e.yml` (`workflow_call`) shared with a `nightly-e2e.yml` cron. On `feat/ci-test-pyramid` (PR #7), pipeline green; not yet making the checks *required* (that's S-02).
 - **CD:** ⬜ absent — Supabase migrations + `wrangler deploy` are manual; no `deploy.yml`.
 - **Release / versioning:** ⬜ absent — no release-please / changelog / commitlint / branch protection.
 - **Dependency automation:** ⬜ absent — no `.github/dependabot.yml` (only a draft inside the old plan doc).
-- **Security / quality tooling:** ⬜ absent (CodeQL, coverage, secret-scanning) · 🟡 Stryker installed but not wired to CI · ✅ README status badges present.
+- **Security / quality tooling:** ✅ AI PR code-review live (`review.yml` producer + `review-run.yml` consumer + `packages/code-reviewer/`, OpenAI; posts an `AI Code Review` commit status — from the separate ci-cd-code-review work, on master) · ⬜ CodeQL, coverage, secret-scanning absent · 🟡 Stryker installed but not wired to CI · ✅ README status badges present.
 - **External (live):** ✅ done — renamed Worker deployed (5 secrets + SESSION KV), old `10x-cards` Worker removed, Supabase Auth Site/Redirect URLs updated, GitHub social-preview + avatar set.
 
 ## Foundations
@@ -88,7 +88,7 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 - **Unknowns:**
   - e2e blocking vs nightly-only — Owner: user. Block: no. (Decision D4 = blocking.)
 - **Risk:** the load-bearing slice — branch protection, release, deploy-on-green, and dependabot auto-merge all reference the CI check this creates. Build it first or the rest has nothing to gate on.
-- **Status:** ready
+- **Status:** done (implemented + impl_reviewed on `feat/ci-test-pyramid`, PR #7, green; awaiting merge → `/10x-archive`)
 
 ### S-02: Branch-per-change + automated version bump + changelog
 
@@ -101,6 +101,7 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 - **Unknowns:**
   - Required approvals = 0 (solo) or 1? — Owner: user. Block: no.
 - **Risk:** branch protection can only require a check that already runs (S-01); squash-merge is required so release-please reads exactly one conventional commit per merge.
+- **Required-checks note:** the ruleset's required status checks should list the S-01 jobs (`lint-unit-build`, `integration`, `e2e`) **and** the `AI Code Review` commit status published by the existing ci-cd-code-review pipeline (`review-run.yml`) — it's a `workflow_run` job not attached to the PR's checks, so it surfaces only as a commit status. Decide whether AI review is a hard gate or advisory before requiring it.
 - **Status:** proposed
 
 ### S-03: CD — Supabase migrations → Cloudflare Worker on green master
@@ -146,7 +147,7 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 | Roadmap ID | Change ID                | Suggested issue title                                  | Ready for `/10x-plan` | Notes                                  |
 | ---------- | ------------------------ | ----------------------------------------------------- | --------------------- | -------------------------------------- |
 | F-01       | live-cutover-sage-worker | Live cutover: deploy renamed Worker + Supabase + brand| done                  | ✅ completed 2026-06-26                 |
-| S-01       | ci-test-pyramid          | CI: full test pyramid gating PRs                      | yes                   | `/10x-plan ci-test-pyramid`            |
+| S-01       | ci-test-pyramid          | CI: full test pyramid gating PRs                      | done                  | ✅ shipped 2026-06-27 (PR #7)           |
 | S-02       | release-automation       | Branch protection + release-please + changelog         | after S-01            | —                                      |
 | S-03       | cd-migrate-and-deploy    | CD: migrate Supabase → deploy Worker on green master   | after S-01 + F-01     | needs production env secrets           |
 | S-04       | dependency-automation    | Dependabot + safe auto-merge                           | after S-01 + S-02     | —                                      |
@@ -168,3 +169,4 @@ What's in place as of **2026-06-26** (evidence-based audit). Foundations/slices 
 
 - **S-00: repo/app rebranded to Sage Flashcards** — Merged 2026-06-26 via PR #4 (`chore/rebrand-sage-flashcards`, 884d8ed). Names → `sage-flashcards`, two-leaf logo everywhere, favicon/PWA/maskable icons, README, og-image, manifest.
 - **F-01: live cutover to the renamed Worker + Supabase + GitHub brand surfaces** — Completed 2026-06-26. Renamed Worker deployed (5 secrets + SESSION KV), old `10x-cards` Worker removed, Supabase Auth Site/Redirect URLs updated, GitHub social-preview + avatar set.
+- **S-01: full CI test pyramid gating every PR** — Implemented + impl_reviewed 2026-06-27 on `feat/ci-test-pyramid` (PR #7, pipeline green). `ci.yml` = `lint-unit-build` + `integration` + `e2e` (concurrency-cancel, Playwright cache, `permissions: contents: read`, failure-only artifacts); reusable `e2e.yml` (`workflow_call`) shared with `nightly-e2e.yml` cron. Three non-obvious fixes vs the plan: e2e needs local `SUPABASE_URL/KEY`; `supabase/setup-cli` pinned to the lockfile CLI (`2.107.0`) for config.toml parity; `.dev.vars` written in CI because `astro preview` on workerd ignores `process.env`. Checks exist but are **not yet required** (S-02). Awaiting merge → `/10x-archive`.
