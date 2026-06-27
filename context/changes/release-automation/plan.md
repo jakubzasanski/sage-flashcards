@@ -285,9 +285,9 @@ Negligible — adds a lightweight PR-title job and a release-please job (runs on
 
 #### Automated
 
-- [x] 2.1 `release-please-config.json` + `.release-please-manifest.json` valid JSON
-- [x] 2.2 `release-please.yml` parses (actionlint / CI)
-- [ ] 2.3 release-please dry run reports a `1.2.0` candidate aggregating commits since `v1.1.0`
+- [x] 2.1 `release-please-config.json` + `.release-please-manifest.json` valid JSON — b10dafa
+- [x] 2.2 `release-please.yml` parses (actionlint / CI) — b10dafa
+- [x] 2.3 release-please dry run reports a `1.2.0` candidate aggregating commits since `v1.1.0` — b10dafa
 
 #### Manual
 
@@ -297,15 +297,15 @@ Negligible — adds a lightweight PR-title job and a release-please job (runs on
 
 #### Automated
 
-- [ ] 3.1 `master.json` valid JSON
-- [ ] 3.2 Active ruleset on `master` listed via `gh api .../rulesets`
-- [ ] 3.3 Repo merge settings show squash-only + `squash_merge_commit_title=PR_TITLE`
+- [x] 3.1 `master.json` valid JSON
+- [x] 3.2 Active ruleset on `master` listed via `gh api .../rulesets`
+- [x] 3.3 Repo merge settings show squash-only + `squash_merge_commit_title=PR_TITLE`
 
 #### Manual
 
-- [ ] 3.4 Direct `git push` to `master` is rejected
-- [ ] 3.5 PR UI offers only "Squash and merge"
-- [ ] 3.6 PR shows the three required checks as required before merge
+- [x] 3.4 Direct `git push` to `master` is rejected
+- [x] 3.5 PR UI offers only "Squash and merge"
+- [x] 3.6 PR shows the three required checks as required before merge
 
 ### Phase 4: End-to-end verification
 
