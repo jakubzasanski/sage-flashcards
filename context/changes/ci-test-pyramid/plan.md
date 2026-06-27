@@ -197,7 +197,7 @@ Pure additive CI change; no app/runtime/data impact. The existing `build` step a
 
 #### Manual
 
-- [ ] 1.3 Second push to a PR cancels the in-flight run (concurrency)
+- [ ] 1.3 Second push to a PR cancels the in-flight run (concurrency) — config is the canonical GitHub pattern (group `${{ github.workflow }}-${{ github.ref }}`, cancel-in-progress: true), valid YAML & merged green. Not synthetically tested (would need two overlapping pushes / noise commits); will confirm naturally on the next rapid double-push.
 
 ### Phase 2: Integration job (local Supabase)
 
@@ -207,7 +207,7 @@ Pure additive CI change; no app/runtime/data impact. The existing `build` step a
 
 #### Manual
 
-- [ ] 2.2 Supabase healthy before tests; job time acceptable
+- [x] 2.2 Supabase healthy before tests; job time acceptable — verified: integration 2m18s, e2e 3m30s (run 28283035289); supabase started healthy before tests
 
 ### Phase 3: E2E job (Supabase + Playwright)
 
@@ -218,8 +218,8 @@ Pure additive CI change; no app/runtime/data impact. The existing `build` step a
 
 #### Manual
 
-- [ ] 3.3 Downloaded HTML report opens with traces
-- [ ] 3.4 e2e flake rate acceptable across a few runs
+- [ ] 3.3 Downloaded HTML report opens with traces — PARTIAL: traces verified (test-results/…/trace.zip downloaded from a failed run, opens in `npx playwright show-trace`); HTML report NOT generated in CI because playwright.config.ts uses the `github` reporter (annotations) not `html`. Producing it needs an `["github"],["html"]` reporter change — out of scope here (plan: no playwright.config changes). Future tweak.
+- [x] 3.4 e2e flake rate acceptable across a few runs — green across PR runs 28283035289 + 28283542453 and nightly dispatch 28283947510; no retries needed
 
 ### Phase 4: Nightly e2e safety net
 
@@ -229,4 +229,4 @@ Pure additive CI change; no app/runtime/data impact. The existing `build` step a
 
 #### Manual
 
-- [ ] 4.2 Manual dispatch runs full e2e green + uploads report
+- [x] 4.2 Manual dispatch runs full e2e green + uploads report — verified: `gh workflow run nightly-e2e.yml --ref master` → run 28283947510 green (workflow_dispatch). Note: artifacts upload only on failure() now, so a green dispatch uploads nothing by design.
