@@ -245,20 +245,20 @@ Migrations are **forward-only and destructive-capable**. Safety net: `db push --
 
 #### Manual
 
-- [ ] 2.3 Deploy does not fire on a PR or on a failing CI run
-- [ ] 2.4 On green master push, steps run in order with dry-run output before `db push`
-- [ ] 2.5 Ordering confirmed in run log: migrate → secrets → deploy
+- [x] 2.3 Deploy does not fire on a PR or on a failing CI run
+- [x] 2.4 On green master push, steps run in order with dry-run output before `db push`
+- [x] 2.5 Ordering confirmed in run log: migrate → secrets → deploy
 
 ### Phase 3: External setup, first live deploy, and runbook
 
 #### Automated
 
-- [ ] 3.1 `deploy.yml` run for the validating master push concludes `success`
+- [x] 3.1 `deploy.yml` run for the validating master push concludes `success`
 
 #### Manual
 
-- [ ] 3.2 All `production` environment secrets exist
-- [ ] 3.3 First auto-deploy: CI green → deploy fires → migrate (dry-run→push) → secrets synced → `wrangler deploy` returns a live version
-- [ ] 3.4 Live URL serves new build; full signup→confirm→signin→dashboard works, `wrangler tail` clean
-- [ ] 3.5 Forced failure fails loud (no auto-rollback); documented manual rollback path works
-- [ ] 3.6 `deploy-plan.md` + `ci-automation-roadmap.md` updated (S-03 → done)
+- [x] 3.2 All `production` environment secrets exist
+- [x] 3.3 First auto-deploy: CI green → deploy fires → migrate (dry-run→push) → secrets synced → `wrangler deploy` returns a live version
+- [x] 3.4 Live URL serves new build; full signup→confirm→signin→dashboard works, `wrangler tail` clean
+- [x] 3.5 Forced failure fails loud (no auto-rollback); documented manual rollback path works
+- [x] 3.6 `deploy-plan.md` + `ci-automation-roadmap.md` updated (S-03 → done)
