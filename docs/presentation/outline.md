@@ -52,6 +52,10 @@
 
 ## 05 — Repo: automatyzacja, review, testy
 
+> Trzej botowie automatyzujący repo mają własne ikony (SVG, inline w decku — kolory spójne z marką):
+> code-review (fiolet, `code-review-bot.svg`) · release (zieleń, `release-bot.svg`) · dependabot (błękit, `dependabot.svg`).
+> Każdy bot ma kartę z ikoną na slajdzie. Ikony są wklejone inline (CSP artefaktu blokuje zewnętrzne pliki); ID gradientów znamespace'owane per bot (`cr-`/`rel-`/`dep-`), żeby się nie kolidowały.
+
 - **Piramida testów:** Unit (Vitest) · Integration (Vitest + Supabase, RLS) · E2E (Playwright + Mailpit) — wszystkie trzy gatekeepują PR; Mutation (Stryker) zainstalowany
 - **Workflow „10x":** plan → plan-review → implement → impl-review → archive; ślad decyzyjny w `context/`
 - **AI code-review na PR-ach** (`@sage/code-reviewer`, Codex SDK):
@@ -72,6 +76,7 @@
 
 ## Backlog / pomysły do rozwoju
 
+- [x] Ikony botów (code-review / release / dependabot) na slajdzie automatyzacji
 - [ ] Wersja dark pod rzutnik
 - [ ] Zrzut ekranu appki na slajdzie produktowym (data-URI, bo CSP blokuje zewnętrzne zasoby)
 - [ ] Autor / nazwisko na slajdzie tytułowym

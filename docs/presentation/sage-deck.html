@@ -1,3 +1,5 @@
+<meta charset="utf-8" />
+
 <style>
   :root {
     --paper: #f6f4ed;
@@ -146,6 +148,20 @@
   }
   .card p { margin: 0; font-size: 14.5px; line-height: 1.45; color: var(--ink-soft); }
   .card .tag { font-family: var(--mono); font-size: 11px; color: var(--sage-deep); letter-spacing: .03em; }
+
+  /* automation bots */
+  .bots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
+  @media (max-width: 760px) { .bots { grid-template-columns: 1fr; } }
+  .bot {
+    background: #fffefb; border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; display: flex; flex-direction: column; gap: 9px;
+  }
+  .bot .bhead { display: flex; align-items: center; gap: 12px; }
+  .bot svg { width: 46px; height: 46px; flex: none; }
+  .bot .bname { font-family: var(--sans); font-weight: 650; font-size: 15px; color: var(--ink); line-height: 1.15; }
+  .bot .btag { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: .02em; margin-top: 3px; }
+  .bot p { margin: 0; font-size: 13.5px; line-height: 1.42; color: var(--ink-soft); }
+  .bot .chiprow { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
 
   /* metrics */
   .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 8px; }
@@ -335,19 +351,97 @@
   <section class="slide" data-label="Automatyzacja">
     <div class="wrap">
       <div class="eyebrow reveal"><span class="num">05</span> Repo — automatyzacja, review, testy <span class="rule"></span></div>
-      <h2 class="reveal">CI, piramida testów i agent AI recenzujący każdy PR</h2>
+      <h2 class="reveal">CI, piramida testów i trzy boty pilnujące repo</h2>
       <div class="grid g3 reveal" style="margin-top:24px">
         <div class="card"><h3>CI pipeline</h3><p>lint + test + build na każdy push i PR do <code>master</code>.</p></div>
         <div class="card"><h3>Piramida testów</h3><p>Unit (Vitest) · Integration (Vitest + Supabase, RLS) · E2E (Playwright + Mailpit) · Mutation (Stryker).</p></div>
         <div class="card"><h3>Workflow „10x"</h3><p>plan → plan-review → implement → impl-review → archive. Każda zmiana ma ślad decyzyjny w <code>context/</code>.</p></div>
       </div>
 
-      <div class="card reveal" style="margin-top:16px; border-color:#cfe0d2; background:linear-gradient(180deg,#fffefb,var(--sage-tint))">
-        <h3>★ Automatyczny AI code-review na PR-ach <span class="status-chip pass">ai-cr:passed</span> <span class="status-chip fail">ai-cr:failed</span></h3>
-        <p style="margin-top:4px">Agent <code>@sage/code-reviewer</code> (Codex SDK) ocenia diff w <b>6 kryteriach</b> — poprawność, idiomatyczność, złożoność, pokrycie testami, dokumentacja, bezpieczeństwo → werdykt pass/fail + komentarz + etykieta + commit status. Re-run etykietą <code>ai-cr:review</code>. Advisory (gate przyjdzie z branch protection).</p>
-        <p style="margin-top:10px"><b>Izolacja sekretu (dwie fazy):</b> producer <code>pull_request</code> bez sekretu (tylko diff → artefakt) → consumer <code>workflow_run</code> z gałęzi domyślnej, z sekretem. PR-autor nie wykradnie <code>OPENAI_API_KEY</code> — zaufany kod jest niemodyfikowalny z poziomu PR-a.</p>
+      <div class="bots reveal">
+        <div class="bot">
+          <div class="bhead">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Code-review bot">
+              <defs>
+                <linearGradient id="cr-lg" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#c4a6ec"/><stop offset="0.52" stop-color="#8b5cf6"/><stop offset="1" stop-color="#5b32a8"/></linearGradient>
+                <linearGradient id="cr-lgDeep" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d44c0"/><stop offset="1" stop-color="#43258a"/></linearGradient>
+              </defs>
+              <line x1="48" y1="20" x2="48" y2="10" stroke="url(#cr-lgDeep)" stroke-width="3" stroke-linecap="round"/>
+              <g transform="translate(48,2) rotate(20) scale(0.16)"><path d="M34 84C18 60 24 26 70 14 70 44 60 74 34 84Z" fill="url(#cr-lg)"/></g>
+              <rect x="18" y="20" width="60" height="48" rx="14" fill="url(#cr-lg)"/>
+              <rect x="27" y="30" width="42" height="28" rx="9" fill="#2e1a52" fill-opacity="0.88"/>
+              <circle cx="39" cy="42" r="4.4" fill="#f2ecfb"/><circle cx="57" cy="42" r="4.4" fill="#f2ecfb"/>
+              <path d="M39 50C43 54 53 54 57 50" fill="none" stroke="#f2ecfb" stroke-width="2.4" stroke-linecap="round"/>
+              <rect x="12" y="38" width="6" height="14" rx="3" fill="url(#cr-lgDeep)"/><rect x="78" y="38" width="6" height="14" rx="3" fill="url(#cr-lgDeep)"/>
+              <g transform="translate(48,76)">
+                <rect x="-26" y="-8" width="52" height="18" rx="9" fill="url(#cr-lgDeep)"/>
+                <circle cx="-15" cy="0" r="5.2" fill="none" stroke="#c4a6ec" stroke-width="2.2"/>
+                <line x1="-11.3" y1="3.7" x2="-7.5" y2="7.5" stroke="#c4a6ec" stroke-width="2.4" stroke-linecap="round"/>
+                <text x="7" y="5" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#f2ecfb">&lt;/&gt;</text>
+              </g>
+            </svg>
+            <div><div class="bname">Code-review bot</div><div class="btag">@sage/code-reviewer · Codex SDK</div></div>
+          </div>
+          <p>Ocenia diff każdego PR-a w <b>6 kryteriach</b> → werdykt pass/fail + komentarz + etykieta + commit status. Re-run etykietą <code>ai-cr:review</code>.</p>
+          <div class="chiprow"><span class="status-chip pass">ai-cr:passed</span> <span class="status-chip fail">ai-cr:failed</span></div>
+        </div>
+
+        <div class="bot">
+          <div class="bhead">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Release bot">
+              <defs>
+                <linearGradient id="rel-lg" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#a6d68d"/><stop offset="0.52" stop-color="#5f9a53"/><stop offset="1" stop-color="#3a6739"/></linearGradient>
+                <linearGradient id="rel-lgDeep" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4e7c4d"/><stop offset="1" stop-color="#2c5130"/></linearGradient>
+              </defs>
+              <line x1="48" y1="20" x2="48" y2="10" stroke="url(#rel-lgDeep)" stroke-width="3" stroke-linecap="round"/>
+              <g transform="translate(48,2) rotate(20) scale(0.16)"><path d="M34 84C18 60 24 26 70 14 70 44 60 74 34 84Z" fill="url(#rel-lg)"/></g>
+              <rect x="18" y="20" width="60" height="48" rx="14" fill="url(#rel-lg)"/>
+              <rect x="27" y="30" width="42" height="28" rx="9" fill="#2c5130" fill-opacity="0.88"/>
+              <circle cx="39" cy="42" r="4.4" fill="#eaf6e2"/><circle cx="57" cy="42" r="4.4" fill="#eaf6e2"/>
+              <path d="M39 50C43 54 53 54 57 50" fill="none" stroke="#eaf6e2" stroke-width="2.4" stroke-linecap="round"/>
+              <rect x="12" y="38" width="6" height="14" rx="3" fill="url(#rel-lgDeep)"/><rect x="78" y="38" width="6" height="14" rx="3" fill="url(#rel-lgDeep)"/>
+              <g transform="translate(48,76)">
+                <rect x="-26" y="-8" width="52" height="18" rx="9" fill="url(#rel-lgDeep)"/>
+                <circle cx="-17" cy="1" r="2.6" fill="#a6d68d"/>
+                <text x="3" y="5" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#eaf6e2">v1.2</text>
+              </g>
+            </svg>
+            <div><div class="bname">Release bot</div><div class="btag">release-please</div></div>
+          </div>
+          <p>Merge do <code>master</code> → Release PR z bumpem <b>SemVer</b> (z konwencjonalnych commitów) + <code>CHANGELOG.md</code>. Merge → tag <code>vX.Y.Z</code> + GitHub Release.</p>
+          <div class="chiprow"><span class="status-chip pass">GitHub App token</span></div>
+        </div>
+
+        <div class="bot">
+          <div class="bhead">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Dependabot">
+              <defs>
+                <linearGradient id="dep-lg" x1="0.1" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#8ec5f0"/><stop offset="0.52" stop-color="#3b82f6"/><stop offset="1" stop-color="#1e4fb0"/></linearGradient>
+                <linearGradient id="dep-lgDeep" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a63c8"/><stop offset="1" stop-color="#173a85"/></linearGradient>
+              </defs>
+              <line x1="48" y1="20" x2="48" y2="10" stroke="url(#dep-lgDeep)" stroke-width="3" stroke-linecap="round"/>
+              <g transform="translate(48,2) rotate(20) scale(0.16)"><path d="M34 84C18 60 24 26 70 14 70 44 60 74 34 84Z" fill="url(#dep-lg)"/></g>
+              <rect x="18" y="20" width="60" height="48" rx="14" fill="url(#dep-lg)"/>
+              <rect x="27" y="30" width="42" height="28" rx="9" fill="#16306b" fill-opacity="0.88"/>
+              <circle cx="39" cy="42" r="4.4" fill="#eaf2fd"/><circle cx="57" cy="42" r="4.4" fill="#eaf2fd"/>
+              <path d="M39 50C43 54 53 54 57 50" fill="none" stroke="#eaf2fd" stroke-width="2.4" stroke-linecap="round"/>
+              <rect x="12" y="38" width="6" height="14" rx="3" fill="url(#dep-lgDeep)"/><rect x="78" y="38" width="6" height="14" rx="3" fill="url(#dep-lgDeep)"/>
+              <g transform="translate(48,76)">
+                <rect x="-26" y="-8" width="52" height="18" rx="9" fill="url(#dep-lgDeep)"/>
+                <g transform="translate(-15,0)" stroke="#8ec5f0" stroke-width="1.7" stroke-linejoin="round" fill="none">
+                  <path d="M0 -6 6 -2.5 6 4 0 7.5 -6 4 -6 -2.5Z"/><path d="M-6 -2.5 0 1 6 -2.5"/><line x1="0" y1="1" x2="0" y2="7.5"/>
+                </g>
+                <text x="8" y="5" text-anchor="middle" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="11" font-weight="700" fill="#eaf2fd">&#8593;v</text>
+              </g>
+            </svg>
+            <div><div class="bname">Dependabot</div><div class="btag">npm + GitHub Actions</div></div>
+          </div>
+          <p>Otwiera <b>grupowane</b> PR-y z aktualizacjami zależności. Bezpieczne aktualizacje przewidziane do auto-merge po zielonym CI.</p>
+          <div class="chiprow"><span class="status-chip pass">grouped</span></div>
+        </div>
       </div>
-      <p class="note reveal">Roadmapa CI/CD: piramida testów → release-automation → CD migracje→deploy → Dependabot.</p>
+
+      <p class="note reveal"><b>Izolacja sekretu (dwie fazy):</b> producer <code>pull_request</code> bez sekretu (diff → artefakt) → consumer <code>workflow_run</code> z gałęzi domyślnej, z sekretem — PR-autor nie wykradnie <code>OPENAI_API_KEY</code>. Branch protection: PR + squash-only + linear history + wymagane checki. Conventional commits wymuszane dwustronnie (husky commitlint + check tytułu PR).</p>
     </div>
   </section>
 
