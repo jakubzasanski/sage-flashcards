@@ -31,7 +31,8 @@
         "required_status_checks": [
           { "context": "lint-unit-build" },
           { "context": "integration" },
-          { "context": "e2e / e2e" }
+          { "context": "e2e / e2e" },
+          { "context": "pr-title" }
         ]
       }
     }
