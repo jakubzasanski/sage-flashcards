@@ -31,7 +31,7 @@
     "astro": "^7.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.14.0",
+    "lucide-react": "^1.22.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "tailwind-merge": "^3.5.0",
