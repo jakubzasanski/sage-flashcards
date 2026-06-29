@@ -44,7 +44,7 @@ jobs:
           # Deploy the exact commit CI validated, not the current branch tip — another
           # push could have landed while CI was running.
           ref: ${{ github.event.workflow_run.head_sha }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
