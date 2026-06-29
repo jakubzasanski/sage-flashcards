@@ -47,7 +47,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx astro sync
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v2
         with:
           # Pinned (not `latest`) for a deterministic merge gate — see e2e.yml.
           version: 2.107.0
