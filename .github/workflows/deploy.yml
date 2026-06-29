@@ -60,7 +60,7 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
       # --- Migrate (must complete BEFORE deploy so new code never meets an old schema) ---
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v2
         with:
           # Pinned (not `latest`) to match the `supabase` CLI in package-lock.json —
           # config.toml uses keys an older CLI rejects. Mirrors ci.yml / e2e.yml.
