@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/jakubzasanski/sage-flashcards/compare/v1.3.1...v1.3.2) (2026-07-26)
+
+
+### Bug Fixes
+
+* **deps:** patch sharp and brace-expansion advisories ([#58](https://github.com/jakubzasanski/sage-flashcards/issues/58)) ([bbc126d](https://github.com/jakubzasanski/sage-flashcards/commit/bbc126dd87925f3f2ceddcaecc6baa768f15eb1a))
+
 ## [1.3.1](https://github.com/jakubzasanski/sage-flashcards/compare/v1.3.0...v1.3.1) (2026-07-26)
 
 
