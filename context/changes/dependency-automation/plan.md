@@ -4,22 +4,22 @@
 
 Add Dependabot to the Sage Flashcards repo so dependency updates (npm + GitHub Actions) open as **grouped, risk-scoped PRs** on a weekly cadence, with **known-breaking majors pinned out**, and a **safe auto-merge workflow** that merges only low-risk updates once the required CI signal is green. This is roadmap slice **S-04** (`context/foundation/ci-automation-roadmap.md`, ask #6).
 
-The work is deliberately split so the safe half ships now and the risky half is gated: Phase 1 (`.github/dependabot.yml`) only *opens* PRs and can land immediately; Phase 2 (the auto-merge workflow) carries a **hard prerequisite on slice S-02** (branch protection with required status checks), because auto-merge without a required check would merge ungated.
+The work is deliberately split so the safe half ships now and the risky half is gated: Phase 1 (`.github/dependabot.yml`) only _opens_ PRs and can land immediately; Phase 2 (the auto-merge workflow) carries a **hard prerequisite on slice S-02** (branch protection with required status checks), because auto-merge without a required check would merge ungated.
 
 ## Current State Analysis
 
 - **No `.github/dependabot.yml` exists.** The roadmap only ever held a sketch; nothing is committed. This change creates the file from scratch.
 - **The CI signal to gate on already exists** (S-01, shipped via PR #7). `.github/workflows/ci.yml` defines three jobs — `lint-unit-build`, `integration`, `e2e` (e2e via the reusable `e2e.yml`). These are the checks auto-merge will wait on.
-- **A separate `AI Code Review` *commit status*** is published by `review-run.yml` (a `workflow_run` consumer). It is not attached to PR checks and is **advisory** for this change (see Decision below).
-- **S-02 (branch protection + required checks) is NOT built.** `gh api repos/:owner/:repo/branches/master/protection` returns 404; there is no `release-automation` change folder. Auto-merge is only *meaningful and safe* once a required check exists — hence the Phase 2 gate.
-- **The repo is a fork.** Dependabot operates *within* the fork (head and base both on the fork's own `master`), so the upstream-PR-routing problem that affects `gh pr create` here does **not** apply to Dependabot PRs. However, Dependabot must be enabled in the fork's GitHub settings (manual prerequisite, see Phase 1).
+- **A separate `AI Code Review` _commit status_** is published by `review-run.yml` (a `workflow_run` consumer). It is not attached to PR checks and is **advisory** for this change (see Decision below).
+- **S-02 (branch protection + required checks) is NOT built.** `gh api repos/:owner/:repo/branches/master/protection` returns 404; there is no `release-automation` change folder. Auto-merge is only _meaningful and safe_ once a required check exists — hence the Phase 2 gate.
+- **The repo is a fork.** Dependabot operates _within_ the fork (head and base both on the fork's own `master`), so the upstream-PR-routing problem that affects `gh pr create` here does **not** apply to Dependabot PRs. However, Dependabot must be enabled in the fork's GitHub settings (manual prerequisite, see Phase 1).
 - **`package.json` has no `engines` field**; Node 24 is pinned via `.nvmrc` and `setup-node` in CI. Dependabot does not need engines to function.
 - **Conventional commits matter downstream.** S-02 will run release-please, which reads conventional-commit history. Dependabot's commit messages must therefore use a conventional prefix (`chore`/`build`) so they don't pollute or break the changelog later.
 
 ### Key Discoveries
 
 - CI job names to gate on: `lint-unit-build`, `integration`, `e2e` — `.github/workflows/ci.yml:18,40,57`.
-- ESLint must stay on **9** — ESLint 10 has no plugin-react / jsx-a11y support and crashes lint ([[eslint-10-blocked]]).
+- ~~ESLint must stay on **9** — ESLint 10 has no plugin-react / jsx-a11y support and crashes lint~~ **(superseded 2026-07-26:** moved to ESLint 10 by swapping `eslint-plugin-react` → `@eslint-react/eslint-plugin`; jsx-a11y turned out to run fine and only needed an npm `overrides` entry — see [[eslint-10-blocked]]**)**. The `eslint` major stays on Dependabot's ignore list as deliberate-upgrade-only, same as astro/react.
 - App is on **Astro 7** with React 19 ([[astro-7-cloudflare-bindings]]); framework majors (`astro`, `react`, `react-dom`) need a deliberate upgrade change, not an automated PR.
 - Dependabot PRs receive a **read-only `GITHUB_TOKEN`** and **no access to repo secrets** (e.g. `OPENAI_API_KEY`) by default — this is exactly why the AI Code Review gate is advisory, not required, for dep PRs.
 - The current third-party actions use floating major tags (`actions/checkout@v4`, `actions/setup-node@v4`, `supabase/setup-cli@v1`) — Dependabot's `github-actions` ecosystem will keep these current.
@@ -32,7 +32,7 @@ Verifiable by: (1) `.github/dependabot.yml` present and valid; (2) the Dependabo
 
 ## What We're NOT Doing
 
-- **Branch protection / required-status-check ruleset** — owned by slice **S-02** (`release-automation`). Phase 2 *depends on* it but does not create it.
+- **Branch protection / required-status-check ruleset** — owned by slice **S-02** (`release-automation`). Phase 2 _depends on_ it but does not create it.
 - **Migrating to Renovate** — parked in the roadmap (overkill for a single-maintainer fork).
 - **Making AI Code Review a hard gate for dependency PRs** — kept advisory (decision below); the secret-access plumbing it would need is out of scope.
 - **Security-only update tuning, version-update for ecosystems we don't use** (Docker, etc.).
@@ -41,11 +41,11 @@ Verifiable by: (1) `.github/dependabot.yml` present and valid; (2) the Dependabo
 
 ## Implementation Approach
 
-Two files, two phases. Phase 1 is the declarative `dependabot.yml` — independently shippable and risk-free because it only opens PRs. Phase 2 adds an event-driven workflow that reacts to Dependabot's PRs using the official `dependabot/fetch-metadata` action to classify update-type and dependency-type, then approves + enables native GitHub auto-merge (`gh pr merge --auto --squash`) only for the agreed safe classes. Native auto-merge means GitHub itself holds the merge until required checks pass — so the safety guarantee lives in S-02's branch protection, and the workflow merely *requests* the merge.
+Two files, two phases. Phase 1 is the declarative `dependabot.yml` — independently shippable and risk-free because it only opens PRs. Phase 2 adds an event-driven workflow that reacts to Dependabot's PRs using the official `dependabot/fetch-metadata` action to classify update-type and dependency-type, then approves + enables native GitHub auto-merge (`gh pr merge --auto --squash`) only for the agreed safe classes. Native auto-merge means GitHub itself holds the merge until required checks pass — so the safety guarantee lives in S-02's branch protection, and the workflow merely _requests_ the merge.
 
 ## Critical Implementation Details
 
-- **Auto-merge safety is external.** `gh pr merge --auto` only *defers* a merge if the repo has a required check (or merge queue); with no required check it merges as soon as the PR is mergeable. This is precisely why Phase 2's success criteria require confirming S-02 branch protection is live before the workflow is allowed to act. Do not merge Phase 2 ahead of S-02.
+- **Auto-merge safety is external.** `gh pr merge --auto` only _defers_ a merge if the repo has a required check (or merge queue); with no required check it merges as soon as the PR is mergeable. This is precisely why Phase 2's success criteria require confirming S-02 branch protection is live before the workflow is allowed to act. Do not merge Phase 2 ahead of S-02.
 - **Dependabot token scope.** The auto-merge workflow runs on the `pull_request` event for Dependabot's PR. Dependabot-authored events get a read-only token, so the workflow needs explicit `permissions: { contents: write, pull-requests: write }` to approve and merge. Approve/merge via `gh` with `GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}`.
 - **Conventional commit prefixes.** Set `commit-message.prefix` (e.g. `chore`) for npm and `ci` or `chore` for github-actions so the messages parse cleanly when S-02's release-please reads history. Keep prefixes consistent with the repo's existing conventional-commit style.
 
@@ -72,7 +72,7 @@ Create `.github/dependabot.yml` declaring two ecosystems (npm, github-actions), 
   - `groups`:
     - `dev-dependencies` — `dependency-type: "development"`, `update-types: ["minor", "patch"]`.
     - `production-minor-patch` — `dependency-type: "production"`, `update-types: ["minor", "patch"]`.
-  - `ignore`: major updates for the four pinned packages — entries for `eslint`, `astro`, `react`, `react-dom`, each with `update-types: ["version-update:semver-major"]`. (Majors for all *other* deps still open as individual PRs for manual review — do **not** add a global major ignore.)
+  - `ignore`: major updates for the four pinned packages — entries for `eslint`, `astro`, `react`, `react-dom`, each with `update-types: ["version-update:semver-major"]`. (Majors for all _other_ deps still open as individual PRs for manual review — do **not** add a global major ignore.)
 - **github-actions entry** (`package-ecosystem: "github-actions"`, `directory: "/"`, `schedule.interval: "weekly"`):
   - `commit-message.prefix: "ci"`.
   - `labels`: e.g. `["dependencies", "github-actions"]`.

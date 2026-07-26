@@ -1,6 +1,6 @@
 # Dependabot configuration — roadmap slice S-04 (dependency-automation).
 # Opens grouped, risk-scoped update PRs weekly. Known-breaking majors are pinned
-# out (eslint stays on 9; astro/react are deliberate-upgrade-only). Auto-merge of
+# out (eslint/astro/react are deliberate-upgrade-only). Auto-merge of
 # safe classes is handled by .github/workflows/dependabot-auto-merge.yml and is
 # only safe once S-02 branch protection makes the CI checks required.
 version: 2
