@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/jakubzasanski/sage-flashcards/compare/v1.3.0...v1.3.1) (2026-07-26)
+
+
+### Bug Fixes
+
+* Artifact poisoning ([#33](https://github.com/jakubzasanski/sage-flashcards/issues/33)) ([f966f4e](https://github.com/jakubzasanski/sage-flashcards/commit/f966f4e32fb8ef92690cd059285b0acd9fc291b8))
+
 ## [1.3.0](https://github.com/jakubzasanski/sage-flashcards/compare/v1.2.0...v1.3.0) (2026-06-27)
 
 
