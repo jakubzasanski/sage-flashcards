@@ -37,7 +37,7 @@ interface GeneratorViewProps {
 export default function GeneratorView({ locale }: GeneratorViewProps) {
   const [sourceText, setSourceText] = useState("");
   const [cards, setCards] = useState<ReviewCard[]>([]);
-  const [editingIds, setEditingIds] = useState<Set<string>>(new Set());
+  const [editingIds, setEditingIds] = useState<Set<string>>(() => new Set());
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export default function GeneratorView({ locale }: GeneratorViewProps) {
   // produce the empty state so hydration matches, then the effect repopulates from localStorage.
   useEffect(() => {
     const restored = loadSession();
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional post-hydration restore from localStorage
+    // eslint-disable-next-line react-hooks/set-state-in-effect, @eslint-react/set-state-in-effect -- intentional post-hydration restore from localStorage
     if (restored.length > 0) setCards(restored);
   }, []);
 

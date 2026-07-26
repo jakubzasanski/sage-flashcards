@@ -3,7 +3,7 @@ import { includeIgnoreFile } from "@eslint/config-helpers";
 import eslint from "@eslint/js";
 import eslintPluginPrettier from "eslint-plugin-prettier/recommended";
 import eslintPluginAstro from "eslint-plugin-astro";
-import pluginReact from "eslint-plugin-react";
+import eslintReact from "@eslint-react/eslint-plugin";
 import reactCompiler from "eslint-plugin-react-compiler";
 import eslintPluginReactHooks from "eslint-plugin-react-hooks";
 import path from "node:path";
@@ -39,9 +39,10 @@ const baseConfig = tseslint.config({
 
 const reactConfig = tseslint.config({
   files: ["**/*.{js,jsx,ts,tsx}"],
-  extends: [pluginReact.configs.flat.recommended],
+  // @eslint-react replaces eslint-plugin-react, which is stuck on the pre-ESLint-10 rule
+  // context API (calls the removed `context.getFilename()`) and has no compatible release.
+  extends: [eslintReact.configs["recommended-typescript"]],
   languageOptions: {
-    ...pluginReact.configs.flat.recommended.languageOptions,
     globals: {
       window: true,
       document: true,
@@ -51,10 +52,8 @@ const reactConfig = tseslint.config({
     "react-hooks": eslintPluginReactHooks,
     "react-compiler": reactCompiler,
   },
-  settings: { react: { version: "detect" } },
   rules: {
     ...eslintPluginReactHooks.configs.recommended.rules,
-    "react/react-in-jsx-scope": "off",
     "react-compiler/react-compiler": "error",
   },
 });
