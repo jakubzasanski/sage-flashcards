@@ -64,7 +64,7 @@
     "supabase": "^2.109.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.65.0",
-    "vitest": "^4.1.10",
+    "vitest": "^5.0.5",
     "wrangler": "^4.114.0"
   },
   "overrides": {
